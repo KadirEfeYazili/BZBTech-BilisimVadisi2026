@@ -1,0 +1,125 @@
+"""Kampanya modeli — İŞLENMİŞ VERİ KATMANI."""
+
+from __future__ import annotations
+
+from datetime import date, datetime
+from decimal import Decimal
+from typing import TYPE_CHECKING, Final
+
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    ForeignKey,
+    Index,
+    Numeric,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base import Base, TimestampMixin, UtcDateTime, utc_now
+
+if TYPE_CHECKING:
+    from app.db.models.bank import Bank
+    from app.db.models.campaign_extraction import CampaignExtraction
+    from app.db.models.campaign_metric import CampaignMetric
+    from app.db.models.source_document import SourceDocument
+
+# Kampanya durumu. `unknown`, tarih verisi hiç bulunmayan kampanyalar içindir ve
+# `expired`'dan AYRI tutulur: tarihi olmayan kampanyayı "süresi dolmuş" göstermek
+# yanlış bilgi olur (Türkiye Finans'ta hiçbir kampanyada tarih yok).
+CAMPAIGN_STATUSES: Final[tuple[str, ...]] = ("active", "upcoming", "expired", "unknown")
+
+# Tarih çıkarımının güvenilirliği:
+#   exact    — başlangıç ve bitiş açıkça yazılı
+#   partial  — yalnızca biri yazılı (ör. "31.12.2026 tarihine kadar")
+#   inferred — eksik bilgi çıkarsandı (ör. başlangıçtaki yıl bitişten devralındı)
+#   unknown  — tarih bulunamadı
+DATE_PRECISIONS: Final[tuple[str, ...]] = ("exact", "partial", "inferred", "unknown")
+
+# Müşteri segmenti
+SEGMENTS: Final[tuple[str, ...]] = ("bireysel", "kurumsal", "kobi", "ticari", "tarim")
+
+# Kampanyaya katılım yöntemi
+PARTICIPATION_METHODS: Final[tuple[str, ...]] = ("sms", "kod", "otomatik", "basvuru", "yok")
+
+
+class Campaign(TimestampMixin, Base):
+    """Bir bankanın tek bir kampanyası.
+
+    Tarih alanlarının nullable olması ZORUNLUDUR: bankaların çoğunda yapısal
+    tarih alanı yok, bazılarında hiç tarih yok. NOT NULL yapılırsa veri kaybedilir.
+    """
+
+    __tablename__ = "campaigns"
+    __table_args__ = (
+        # Aynı bankada aynı slug tek kayıt olur — upsert anahtarı budur.
+        UniqueConstraint("bank_id", "external_slug", name="uq_campaigns_bank_id_external_slug"),
+        CheckConstraint(
+            "status IN ('active', 'upcoming', 'expired', 'unknown')",
+            name="status_valid",
+        ),
+        CheckConstraint(
+            "date_precision IN ('exact', 'partial', 'inferred', 'unknown')",
+            name="date_precision_valid",
+        ),
+        Index("ix_campaigns_bank_id_status", "bank_id", "status"),
+        Index("ix_campaigns_end_date", "end_date"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    bank_id: Mapped[int] = mapped_column(
+        ForeignKey("banks.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # Kampanyanın çıkarıldığı ham doküman — kaynak gösterimi için zorunlu bağ.
+    source_document_id: Mapped[int | None] = mapped_column(
+        ForeignKey("source_documents.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # Bankanın URL'inde geçen slug. Başlıktan TÜRETİLMEZ, href'ten birebir alınır.
+    external_slug: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # PART 3'te LLM ile doldurulacak; PART 1'de daima NULL.
+    summary_ai: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # PART 3'te sınıflandırma ile doldurulacak; sitelerde kategori etiketi yok.
+    category: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    category_confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+
+    segment: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    target_customer: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    date_precision: Mapped[str] = mapped_column(Text, nullable=False, default="unknown")
+
+    # Backend'de hesaplanır — tek doğruluk kaynağı burasıdır, frontend hesaplamaz.
+    status: Mapped[str] = mapped_column(Text, nullable=False, default="unknown", index=True)
+
+    participation_channel: Mapped[str | None] = mapped_column(Text, nullable=True)
+    participation_method: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sms_keyword: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sms_number: Mapped[str | None] = mapped_column(Text, nullable=True)
+    coupon_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    conditions_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    exclusions_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
+
+    first_seen_at: Mapped[datetime] = mapped_column(UtcDateTime, nullable=False, default=utc_now)
+    last_seen_at: Mapped[datetime] = mapped_column(UtcDateTime, nullable=False, default=utc_now)
+    # Bankanın arşiv/geçmiş kampanya bölümünden gelen kayıtlar.
+    is_archived: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    bank: Mapped[Bank] = relationship(back_populates="campaigns", lazy="joined")
+    source_document: Mapped[SourceDocument | None] = relationship(back_populates="campaigns")
+    metric: Mapped[CampaignMetric | None] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan", uselist=False
+    )
+    extractions: Mapped[list[CampaignExtraction]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
