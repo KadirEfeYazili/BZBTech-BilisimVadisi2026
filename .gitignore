@@ -1,0 +1,54 @@
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+ENV/
+
+# ── Test / kapsam ─────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Veri (ham HTML arşivi ve SQLite dosyası repoya girmez) ─
+backend/data/app.db
+backend/data/app.db-journal
+backend/data/app.db-wal
+backend/data/app.db-shm
+backend/data/raw_html/
+backend/data/exports/*
+!backend/data/exports/.gitkeep
+
+# ── Ortam ─────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Node / frontend ───────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Editör / işletim sistemi ───────────────────────────────
+.vscode/*
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
