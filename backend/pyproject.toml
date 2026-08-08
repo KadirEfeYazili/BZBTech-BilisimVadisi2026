@@ -1,0 +1,140 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "katilim-kampanya-analiz-backend"
+version = "0.1.0"
+description = "Katılım bankacılığı kampanya analizi platformu — backend"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+
+dependencies = [
+    "fastapi>=0.115,<0.116",
+    "uvicorn[standard]>=0.32,<0.33",
+    "sqlalchemy>=2.0.36,<2.1",
+    "alembic>=1.13,<2.0",
+    "pydantic>=2.9,<3.0",
+    "pydantic-settings>=2.6,<3.0",
+    "httpx>=0.27,<0.29",
+    "beautifulsoup4>=4.12,<5.0",
+    "lxml>=5.3,<6.0",
+    "protego>=0.3,<0.5",
+    "tenacity>=9.0,<10.0",
+    "structlog>=24.4,<26",
+    # Windows'ta IANA zaman dilimi veritabanı yoktur; ZoneInfo("Europe/Istanbul")
+    # bu paket olmadan hata verir. Kampanya durumu Türkiye saatine göre hesaplanır.
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-asyncio>=0.24,<1.0",
+    "pytest-cov>=6.0,<8.0",
+    "ruff>=0.8,<1.0",
+    "mypy>=1.13,<2.0",
+    "types-beautifulsoup4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+# ── Ruff ──────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle hataları
+    "W",    # pycodestyle uyarıları
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "T20",  # flake8-print — print() yasak (§11)
+    "RET",  # flake8-return
+    "PTH",  # flake8-use-pathlib
+    "ARG",  # kullanılmayan argüman
+    "RUF",  # ruff'a özgü
+]
+ignore = [
+    "B008",   # FastAPI Depends() varsayılan argümanda zorunlu
+    "RUF001", # Türkçe metinlerde belirsiz unicode karakter (kâr, ’) bilinçli
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Testlerde fixture argümanları kullanılmadan da bildirilir.
+"tests/**" = ["ARG001", "ARG002"]
+# CLI'ın işi zaten terminale yazmaktır.
+"app/scrapers/run.py" = ["T201"]
+# Aşağıdaki dosyalarda kullanılmayan argümanlar KÜTÜPHANE İMZASI GEREĞİDİR;
+# kaldırılırsa ilgili kanca (hook) çalışmaz:
+#   - SQLAlchemy TypeDecorator: process_bind_param(value, dialect)
+#   - SQLAlchemy event listener: connect(dbapi_connection, connection_record)
+#   - FastAPI exception handler: handler(request, exc)
+"app/db/base.py" = ["ARG002"]
+"app/db/session.py" = ["ARG001"]
+"app/main.py" = ["ARG001"]
+# is_soft_404(html, url) imzası şartnamede sabittir; `url` şu an yalnızca
+# çağıran tarafın bağlamı için taşınır, gelecekteki sezgilerde kullanılacaktır.
+"app/scrapers/soft404.py" = ["ARG001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+# ── Mypy ──────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+strict_equality = true
+plugins = []
+
+# §11: app/core ve app/scrapers üzerinde strict geçmeli
+[[tool.mypy.overrides]]
+module = ["app.core.*", "app.scrapers.*"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["protego.*", "bs4.*"]
+ignore_missing_imports = true
+
+# ── Pytest ────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = [
+    "network: ağ erişimi gerektirir (CI'da çalıştırılmaz)",
+]
+
+# ── Coverage ──────────────────────────────────────────────
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "app/scrapers/run.py",
+    "alembic/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@abstractmethod",
+]
