@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Tema token'ları — §10.1.
+ * Katılım bankacılığının kurumsal görsel dili: yeşil-turkuaz palet, kırık beyaz
+ * zemin, ince gri kenarlıklar. Koyu tema varsayılan DEĞİLDİR.
+ */
+:root {
+  --brand-900: #0f3d2e; /* koyu yeşil — başlık, sidebar */
+  --brand-700: #1b6b4a; /* orta yeşil — primary buton */
+  --brand-500: #2e9e6b; /* yeşil — vurgu, aktif rozet */
+  --teal-500: #17a2a2; /* turkuaz — ikincil vurgu */
+  --teal-100: #e0f2f1; /* açık turkuaz — seçili satır */
+  --neutral-50: #fafaf9; /* sayfa zemini (saf beyaz DEĞİL) */
+  --surface: #ffffff; /* kart zemini */
+  --border: #e7e5e4; /* ince gri çizgi */
+  --text-900: #1c1917;
+  --text-500: #78716c;
+  --warn-600: #b45309; /* yaklaşan / düşük güven */
+  --danger-600: #b91c1c; /* hata / süresi dolmuş */
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-neutral-50 text-text-900 font-sans text-base antialiased;
+  }
+
+  /* Sayısal hücrelerde rakam genişlikleri eşitlenir; kolon hizası bozulmaz. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Klavye ile gezinmede odak halkası daima görünür (kontrast >= 4.5:1). */
+  :focus-visible {
+    outline: 2px solid var(--brand-700);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--teal-100);
+    color: var(--text-900);
+  }
+}
+
+@layer components {
+  /* Yükleniyor iskeletlerinde kullanılan sakin nabız animasyonu. */
+  .skeleton-pulse {
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Hareket azaltma tercihi olan kullanıcılarda animasyonlar kapatılır. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

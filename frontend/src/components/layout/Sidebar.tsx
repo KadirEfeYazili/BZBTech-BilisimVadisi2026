@@ -1,0 +1,52 @@
+import { LayoutDashboard, Table2 } from "lucide-react";
+import { NavLink } from "react-router-dom";
+
+import { cn } from "@/lib/utils";
+
+const NAV_ITEMS = [
+  { to: "/", label: "Genel Bakış", icon: LayoutDashboard, end: true },
+  { to: "/campaigns", label: "Kampanyalar", icon: Table2, end: false },
+];
+
+export function Sidebar() {
+  return (
+    <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-brand-900">
+      <div className="border-b border-white/10 px-4 py-4">
+        <p className="text-sm font-semibold leading-tight text-white">
+          Katılım Bankacılığı
+        </p>
+        <p className="text-xs text-white/70">Kampanya Analiz Platformu</p>
+      </div>
+
+      <nav className="flex-1 p-2" aria-label="Ana gezinme">
+        <ul className="space-y-1">
+          {NAV_ITEMS.map((item) => (
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-2 rounded px-3 py-2 text-sm transition-colors duration-150",
+                    isActive
+                      ? "bg-white/10 font-medium text-white"
+                      : "text-white/70 hover:bg-white/5 hover:text-white",
+                  )
+                }
+              >
+                <item.icon className="h-4 w-4" aria-hidden="true" />
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="border-t border-white/10 px-4 py-3">
+        <p className="text-xs text-white/50">
+          Veriler bankaların kamuya açık sayfalarından toplanmıştır.
+        </p>
+      </div>
+    </aside>
+  );
+}
