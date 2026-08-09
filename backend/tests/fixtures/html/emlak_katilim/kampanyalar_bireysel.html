@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--
+  Emlak Katılım bireysel kampanya listeleme sayfasının yapısını temsil eden fixture.
+  Doğrulanan özellikler: sunucuda render, sayfalama yok, detay adresinde ekstra
+  /kampanya/ segmenti var, başlıklarda Türkçe karakter ve kesme işareti bulunuyor.
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Bireysel Kampanyalar | Türkiye Emlak Katılım</title>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/">Ana Sayfa</a>
+    <nav><a href="/tr/bireysel">Bireysel</a><a href="/tr/kurumsal">Kurumsal</a></nav>
+  </header>
+
+  <div class="cookie-consent">
+    Sitede gezinmeye devam ederek çerez kullanımını kabul etmiş olursunuz.
+  </div>
+
+  <main>
+    <h1>Bireysel Kampanyalar</h1>
+    <div class="campaign-list">
+
+      <div class="campaign-card">
+        <a href="/tr/bireysel/kampanyalar/kampanya/akaryakit-harcamalarina-200-tl-hediye">
+          <h3>Akaryakıt Harcamalarına 200 TL Hediye</h3>
+        </a>
+      </div>
+
+      <div class="campaign-card">
+        <a href="/tr/bireysel/kampanyalar/kampanya/market-alisverislerinde-kazandiran-firsat">
+          <h3>Market Alışverişlerinde Kazandıran Fırsat</h3>
+        </a>
+      </div>
+
+      <div class="campaign-card">
+        <a href="/tr/bireysel/kampanyalar/kampanya/konut-finansmaninda-masrafsiz-donem">
+          <h3>Konut Finansmanında Masrafsız Dönem</h3>
+        </a>
+      </div>
+
+      <!-- Listeleme sayfasının kendisine dönen bağlantı: keşifte elenmelidir -->
+      <a href="/tr/bireysel/kampanyalar">Tüm Kampanyalar</a>
+      <!-- Dış bağlantı: keşifte elenmelidir -->
+      <a href="https://www.instagram.com/emlakkatilim">Instagram</a>
+
+    </div>
+  </main>
+
+  <footer>
+    Türkiye Emlak Katılım Bankası A.Ş. Tüm hakları saklıdır.
+    Müşteri Hizmetleri: 0850 222 0 999
+  </footer>
+</body>
+</html>

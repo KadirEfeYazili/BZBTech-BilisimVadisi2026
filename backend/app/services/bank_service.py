@@ -12,7 +12,7 @@ from app.db.models import Bank, Campaign
 def list_banks(session: Session) -> list[tuple[Bank, int]]:
     """Tüm bankaları kampanya sayılarıyla birlikte döndürür.
 
-    ⚠️ Kampanyası olmayan bankalar (Adil Katılım, İktisat Katılım) listeden
+    ⚠️ Kampanyası olmayan bankalar (Adil Katılım) listeden
     ÇIKARILMAZ; 0 ile döner. Şartname 5.1 BDDK listesindeki kuruluşların
     tümünün veri setinde bulunmasını gerektirir ve "veri yok" bilgisi de
     başlı başına bir bulgudur.

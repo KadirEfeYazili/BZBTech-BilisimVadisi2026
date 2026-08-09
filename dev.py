@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """Proje görev betiği — `make` gerektirmez.
 
-Makefile ile aynı işleri yapar; Windows'ta `make` çoğu zaman kurulu olmadığı
-için asıl giriş noktası budur. Ek bağımlılık kullanmaz, yalnızca standart
-kütüphaneyle çalışır.
+Kurulum, veritabanı, sunucu, kazıma ve test görevlerinin tek giriş noktasıdır.
+`make` gerektirmez (Windows'ta çoğu zaman kurulu değildir) ve ek bağımlılık
+kullanmaz; yalnızca Python standart kütüphanesiyle çalışır.
 
 Kullanım:
     python dev.py kur          # bağımlılıkları kur (backend + frontend)
     python dev.py migrate      # veritabanı şemasını oluştur
-    python dev.py seed         # 11 banka + terminoloji sözlüğü
+    python dev.py seed         # 10 banka + terminoloji sözlüğü
     python dev.py api          # backend'i başlat  -> http://localhost:8000
     python dev.py web          # arayüzü başlat    -> http://localhost:5173
     python dev.py scrape       # tüm scraper'ları çalıştır
@@ -119,12 +119,26 @@ def migrate() -> int:
 
 
 def migrate_geri() -> int:
-    """Son göçü geri alır."""
+    """Son göçü geri alır.
+
+    ⚠️ VERİ SİLER: ilk göç geri alındığında tablolar düşürülür ve toplanmış
+    kampanya verisi kaybolur. Ham HTML arşivi (`backend/data/raw_html`)
+    korunur; veri `seed` + `scrape` ile yeniden üretilebilir.
+    """
+    print(
+        "\033[33mUYARI: Bu işlem tabloları düşürür ve kampanya verisini siler.\n"
+        "Ham HTML arşivi korunur; veriyi 'python dev.py seed' ve "
+        "'python dev.py scrape' ile geri yükleyebilirsiniz.\033[0m"
+    )
+    cevap = input("Devam edilsin mi? [e/H] ").strip().lower()
+    if cevap not in ("e", "evet", "y", "yes"):
+        print("İptal edildi.")
+        return 0
     return _calistir([_python(), "-m", "alembic", "downgrade", "-1"], cwd=BACKEND)
 
 
 def seed() -> int:
-    """11 bankayı ve terminoloji sözlüğünü yükler (tekrar çalıştırılabilir)."""
+    """10 bankayı ve terminoloji sözlüğünü yükler (tekrar çalıştırılabilir)."""
     return _calistir([_python(), "-m", "app.db.seed"], cwd=BACKEND)
 
 
@@ -214,7 +228,7 @@ GOREVLER: dict[str, tuple[Callable[[], int], str]] = {
     "baslat": (baslat, "migrate + seed + api — ilk kurulumdan sonra tek komut"),
     "migrate": (migrate, "Veritabanı şemasını oluşturur/günceller"),
     "migrate-geri": (migrate_geri, "Son göçü geri alır"),
-    "seed": (seed, "11 banka + terminoloji sözlüğünü yükler"),
+    "seed": (seed, "10 banka + terminoloji sözlüğünü yükler"),
     "api": (api, "Backend'i başlatır (http://localhost:8000)"),
     "web": (web, "Arayüzü başlatır (http://localhost:5173)"),
     "scrape": (scrape, "Tüm scraper'ları çalıştırır"),

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+  Hayat Finans kampanya detay fixture'ı.
+  Doğrulanan özellikler:
+    - tarih gövde metninde prose, BAŞLANGIÇTA YIL YOK ("16 Haziran - 31 Ağustos 2026")
+      -> yıl bitişten devralınır, date_precision="inferred"
+    - koşullar numaralı liste (<ol>)
+    - sayfada oran/kademe tablosu var -> PART 1'de conditions_text'e metin olarak eklenir
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Katılma Hesabına Özel Kâr Payı Fırsatı | Hayat Finans</title>
+</head>
+<body>
+  <main>
+    <h1>Katılma Hesabına Özel Kâr Payı Fırsatı</h1>
+
+    <p>
+      Hayat Finans'ta açacağınız katılma hesaplarında 16 Haziran - 31 Ağustos 2026
+      tarihleri arasında avantajlı kâr payı oranlarından yararlanabilirsiniz.
+    </p>
+
+    <h2>Kampanya Koşulları</h2>
+    <ol>
+      <li>Kampanya yalnızca yeni açılan katılma hesapları için geçerlidir.</li>
+      <li>32 günden başlayan vadelerle hesap açılabilir.</li>
+      <li>Asgari hesap açılış tutarı 10.000 TL'dir.</li>
+    </ol>
+
+    <table>
+      <tr><th>Vade</th><th>Kâr Payı Oranı</th></tr>
+      <tr><td>32 Gün</td><td>%4,15</td></tr>
+      <tr><td>92 Gün</td><td>%4,35</td></tr>
+      <tr><td>182 Gün</td><td>%4,50</td></tr>
+    </table>
+  </main>
+</body>
+</html>

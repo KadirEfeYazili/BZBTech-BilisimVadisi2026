@@ -1,8 +1,11 @@
-"""Başlangıç verisi: 11 katılım bankası + katılım bankacılığı terminoloji sözlüğü.
+"""Başlangıç verisi: 10 katılım bankası + katılım bankacılığı terminoloji sözlüğü.
 
-Şartname 5.1 "BDDK listesindeki kuruluşların tümü" gereği, kamuya açık kampanya
-sayfası olmayan bankalar da (Adil Katılım, İktisat Katılım) veri setinde bulunur;
-eksik verinin gerekçesi `notes` alanında açıkça yazılıdır.
+Kamuya açık kampanya sayfası olmayan bankalar da (Adil Katılım) veri setinde
+bulunur; eksik verinin gerekçesi `notes` alanında açıkça yazılıdır. "Veri yok"
+bilgisi de başlı başına bir bulgudur ve gizlenmez.
+
+Not: İktisat Katılım proje kapsamı dışında bırakılmıştır (faaliyete henüz
+geçmemiş olması nedeniyle); kapsam 10 banka ile sınırlıdır.
 
 Bu betik IDEMPOTENT'tir: tekrar tekrar çalıştırılabilir, kayıt çoğaltmaz.
 Mevcut kayıtların alanları güncellenir, yenileri eklenir.
@@ -15,10 +18,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Bank, GlossaryTerm
+from app.db.models import Bank, Campaign, GlossaryTerm
 from app.db.session import SessionLocal
 from app.logging_config import get_logger
 
@@ -189,22 +192,6 @@ BANK_SEED: list[dict[str, Any]] = [
             "Var olmayan her URL için HTTP 200 ile ana sayfa HTML'i döndürüyor "
             "(soft-404 catch-all) — içerik hash karşılaştırması zorunlu. "
             "Kampanya sayısı 0'dır; kayıt şartname 5.1 kapsamı için tutulur."
-        ),
-    },
-    {
-        "code": "iktisat_katilim",
-        "name": "İktisat Katılım",
-        "legal_name": "İktisat Katılım Bankası A.Ş.",
-        "website": "https://iktisatkatilim.com.tr",
-        "legacy_domains": None,
-        "bddk_status": "active",
-        "tkbb_member": True,
-        "data_status": "none",
-        "brand_color": "#78716C",
-        "notes": (
-            "BDDK faaliyet izni 26.02.2026 tarihli 11424 sayılı karar, Resmî Gazete "
-            "04.03.2026. Web sitesi henüz açılmadı ('yakında' aşamasında). Kampanya sayısı "
-            "0'dır; kayıt şartname 5.1 kapsamı için tutulur, aylık izlenir."
         ),
     },
 ]
@@ -449,15 +436,62 @@ def seed_glossary(session: Session) -> tuple[int, int]:
     return inserted, updated
 
 
+def remove_obsolete_banks(session: Session) -> int:
+    """Kapsamdan çıkarılan bankaları veritabanından siler.
+
+    Seed listesi tek doğruluk kaynağıdır: listeden çıkarılan bir banka
+    veritabanında kalmaya devam ederse API hâlâ o bankayı döndürür ve kapsam
+    ile veri birbirinden ayrışır.
+
+    ⚠️ GÜVENLİK KİLİDİ: Kampanyası bulunan bir banka SİLİNMEZ, yalnızca
+    uyarı loglanır. Aksi hâlde seed'de yapılan bir yazım hatası, toplanmış
+    kampanya verisini zincirleme silebilirdi.
+
+    Args:
+        session: Veritabanı oturumu.
+
+    Returns:
+        Silinen banka sayısı.
+    """
+    gecerli_kodlar = {row["code"] for row in BANK_SEED}
+    silinen = 0
+
+    for bank in session.scalars(select(Bank).where(Bank.code.notin_(gecerli_kodlar))):
+        kampanya_sayisi = (
+            session.scalar(
+                select(func.count()).select_from(Campaign).where(Campaign.bank_id == bank.id)
+            )
+            or 0
+        )
+
+        if kampanya_sayisi:
+            logger.warning(
+                "kapsam_disi_banka_silinmedi",
+                banka=bank.code,
+                kampanya_sayisi=kampanya_sayisi,
+                not_="Kampanyası olan banka otomatik silinmez; elle karar verin.",
+            )
+            continue
+
+        logger.info("kapsam_disi_banka_silindi", banka=bank.code)
+        session.delete(bank)
+        silinen += 1
+
+    session.flush()
+    return silinen
+
+
 def run_seed(session: Session) -> dict[str, int]:
     """Tüm seed verisini uygular ve özet döndürür."""
     banks_inserted, banks_updated = seed_banks(session)
+    banks_removed = remove_obsolete_banks(session)
     glossary_inserted, glossary_updated = seed_glossary(session)
     session.commit()
 
     summary = {
         "banks_inserted": banks_inserted,
         "banks_updated": banks_updated,
+        "banks_removed": banks_removed,
         "glossary_inserted": glossary_inserted,
         "glossary_updated": glossary_updated,
         "banks_total": len(BANK_SEED),

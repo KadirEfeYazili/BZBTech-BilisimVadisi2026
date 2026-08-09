@@ -41,15 +41,30 @@ her değerin **kaynağını** ve **çıkarım güvenilirliğini** kayıt altına
 
 ## SPRINT 1 kapsamı
 
-| Alan | Durum |
+| Alan | Durum | Sonuç |
+|---|---|---|
+| Veritabanı şeması + Alembic göçleri | ✅ | 9 tablo · `upgrade` ve `downgrade` doğrulandı |
+| 10 katılım bankası + terminoloji sözlüğü (seed) | ✅ | 10 banka · 18 terim · tekrar çalıştırılabilir |
+| Türkçe finansal metin normalizasyon kütüphanesi | ✅ | 7 tarih formatı · tutar, oran, vade · **%96 test kapsamı** |
+| Kazıma altyapısı (robots, soft-404, yeniden deneme, ham HTML arşivi) | ✅ | 101 arşiv dosyası · özet doğrulaması tam |
+| İki banka scraper'ı (Emlak Katılım, Hayat Finans) | ✅ | **76 kampanya** gerçek veriyle toplandı |
+| REST API (`/health`, `/banks`, `/campaigns`, `/stats`) | ✅ | Filtreleme, sayfalama, sıralama · OpenAPI dokümanı |
+| Web arayüzü (genel bakış + kampanya tablosu) | ✅ | Yükleniyor / hata / sonuç yok durumları ayrı |
+
+**Kapsam dışı (sonraki sprintler):** yapay zekâ / LLM entegrasyonu, sohbet
+arayüzü, kalan 9 bankanın scraper'ı, kampanya karşılaştırma motoru.
+
+### Toplanan veri
+
+| | |
 |---|---|
-| Veritabanı şeması (9 tablo) + Alembic göçleri | ⬜ |
-| 11 katılım bankası + terminoloji sözlüğü (seed) | ⬜ |
-| Türkçe finansal metin normalizasyon kütüphanesi | ⬜ |
-| Kazıma altyapısı (robots, soft-404, yeniden deneme, ham HTML arşivi) | ⬜ |
-| İki banka scraper'ı (Emlak Katılım, Hayat Finans) | ⬜ |
-| REST API (`/health`, `/banks`, `/campaigns`, `/stats`) | ⬜ |
-| Web arayüzü (genel bakış + kampanya tablosu) | ⬜ |
+| Kampanya | 76 (Emlak Katılım 65 · Hayat Finans 11) |
+| Tarihi çıkarılan | 66 / 76 |
+| Durum dağılımı | 63 aktif · 3 süresi dolmuş · 10 tarih belirtilmemiş |
+
+> "Tarih belirtilmemiş" ile "süresi dolmuş" **ayrı** tutulur. Kaynak sayfada
+> tarih yoksa kampanya bitmiş sayılmaz; bunu "süresi dolmuş" göstermek yanlış
+> bilgi üretirdi.
 
 
 ---
@@ -67,9 +82,65 @@ her değerin **kaynağını** ve **çıkarım güvenilirliğini** kayıt altına
 Harici servis gerekmez: PostgreSQL, Redis veya mesaj kuyruğu yoktur.
 Geliştirme veritabanı SQLite'tır ve dosya olarak tutulur.
 
-
 Tüm bağımlılıkların tam listesi ve lisansları için:
-[`LICENSES.md`](LICENSES.md)
+[`LICENSES.md`](LICENSES.md) ·
+[`backend/requirements.txt`](backend/requirements.txt) ·
+[`frontend/package.json`](frontend/package.json)
+
+### Adım adım çalıştırma
+
+Tüm görevler `dev.py` üzerinden çalışır; **`make` kurmanıza gerek yoktur.**
+Betik yalnızca Python standart kütüphanesini kullanır.
+
+```bash
+# 1. Depoyu klonlayın
+git clone https://github.com/mzeydkurt/BZBTech-BilisimVadisi2026.git
+cd BZBTech-BilisimVadisi2026
+
+# 2. Bağımlılıkları kurun (sanal ortam + frontend paketleri + .env dosyası)
+python dev.py kur
+
+# 3. Veritabanını hazırlayıp backend'i başlatın → http://localhost:8000
+python dev.py baslat
+
+# 4. Ayrı bir terminalde arayüzü başlatın → http://localhost:5173
+python dev.py web
+```
+
+`baslat` komutu sırasıyla şemayı oluşturur, 10 bankayı yükler ve sunucuyu
+başlatır. Adımları ayrı ayrı çalıştırmak için:
+
+```bash
+python dev.py migrate        # veritabanı şemasını oluştur
+python dev.py seed           # 10 banka + terminoloji sözlüğü
+python dev.py api            # backend'i başlat
+python dev.py scrape         # kampanya verisini topla (internet gerektirir)
+python dev.py test           # testler + kapsam raporu
+python dev.py lint           # ruff + mypy + tsc
+python dev.py                # tüm komutları listeler
+```
+
+API dokümanı: `http://localhost:8000/docs`
+
+### dev.py kullanmadan
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate                # Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+python -m alembic upgrade head
+python -m app.db.seed
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+Komutların tamamı [`dev.py`](dev.py) içinde okunabilir durumdadır.
+
+### Kapalı ağ (on-premise) kurulumu
+
+`.env` içinde `AIRGAP_MODE=true` yapıldığında sistem **hiçbir dış HTTP isteği
+yapmaz**; kazıma denemesi hata ile durur. API ve arayüz, daha önce toplanmış
+veriyle çalışmaya devam eder.
 
 ---
 

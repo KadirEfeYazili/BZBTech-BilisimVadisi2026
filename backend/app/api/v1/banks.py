@@ -15,7 +15,7 @@ router = APIRouter(prefix="/banks", tags=["bankalar"])
 def read_banks(session: DbSession) -> list[BankSummary]:
     """BDDK listesindeki tüm katılım bankalarını kampanya sayılarıyla döndürür.
 
-    Kampanya sayfası bulunmayan bankalar (Adil Katılım, İktisat Katılım) da
+    Kampanya sayfası bulunmayan bankalar (Adil Katılım) da
     listede yer alır ve `campaign_count=0` döner. "Veri yok" bilgisi de bir
     bulgudur; bu bankaları gizlemek veri setini eksik gösterirdi.
     """

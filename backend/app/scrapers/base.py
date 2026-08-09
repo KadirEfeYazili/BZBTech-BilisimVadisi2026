@@ -2,7 +2,7 @@
 
 Alt sınıflar YALNIZCA iki metod yazar: `discover()` ve `parse_detail()`.
 Çekim, arşivleme, soft-404 denetimi, veritabanı kaydı, hata sayımı ve
-çalıştırma özeti burada tek noktada yönetilir. Böylece 11 bankaya
+çalıştırma özeti burada tek noktada yönetilir. Böylece 10 bankaya
 ölçeklenirken bu mantık tekrar yazılmaz.
 
 HATA YÖNETİMİ (§12): Tek bir URL'in hatası TÜM çalıştırmayı DURDURMAZ.
