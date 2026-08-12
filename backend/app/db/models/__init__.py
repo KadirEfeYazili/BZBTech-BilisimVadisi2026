@@ -4,6 +4,7 @@ Alembic'in şemayı görebilmesi için her model bu modülden export edilir.
 """
 
 from app.db.models.bank import BDDK_STATUSES, DATA_STATUSES, Bank
+from app.db.models.calculator import CalculatorInventory, CalculatorProbe
 from app.db.models.campaign import (
     CAMPAIGN_STATUSES,
     DATE_PRECISIONS,
@@ -11,6 +12,7 @@ from app.db.models.campaign import (
     SEGMENTS,
     Campaign,
 )
+from app.db.models.campaign_category import CampaignCategory
 from app.db.models.campaign_extraction import EXTRACTION_METHODS, CampaignExtraction
 from app.db.models.campaign_metric import CampaignMetric
 from app.db.models.glossary import GlossaryTerm
@@ -30,7 +32,10 @@ __all__ = [
     "SCRAPE_RUN_STATUSES",
     "SEGMENTS",
     "Bank",
+    "CalculatorInventory",
+    "CalculatorProbe",
     "Campaign",
+    "CampaignCategory",
     "CampaignExtraction",
     "CampaignMetric",
     "GlossaryTerm",

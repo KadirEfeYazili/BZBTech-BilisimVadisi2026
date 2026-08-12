@@ -35,6 +35,24 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+def in_check(column: str, values: tuple[str, ...]) -> str:
+    """Kontrollü sözlük için `CheckConstraint` SQL ifadesi üretir.
+
+    Değer listesini elle yazmak yerine `app/core/vocab.py`'deki sözlükten
+    türetmek, sözlüğe eklenen bir değerin şemada unutulmasını engeller.
+
+    Args:
+        column: Kısıtlanacak sütun adı.
+        values: İzin verilen değerler.
+
+    Returns:
+        `"column IN ('a', 'b')"` biçiminde SQL parçası.
+
+    """
+    listelenen = ", ".join(f"'{value}'" for value in values)
+    return f"{column} IN ({listelenen})"
+
+
 class UtcDateTime(TypeDecorator[datetime]):
     """Her zaman UTC'ye demirlenmiş, zaman dilimi bilgili datetime sütunu.
 
