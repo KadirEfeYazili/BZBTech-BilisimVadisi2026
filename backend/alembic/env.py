@@ -42,6 +42,37 @@ target_metadata = Base.metadata
 config.set_main_option("sqlalchemy.url", get_settings().sqlalchemy_url)
 
 
+def _sqlite_yabanci_anahtar_denetimini_kapat(connection: Any) -> None:
+    """Göç süresince SQLite yabancı anahtar denetimini kapatır.
+
+    ⚠️ VERİ KAYBI ÖNLEMİ — bu satır kaldırılmamalıdır.
+
+    `render_as_batch=True` ile SQLite'ta bir tabloya sütun eklemek tabloyu
+    YENİDEN KURAR: geçici tablo oluşturulur, veri kopyalanır, eski tablo
+    `DROP TABLE` edilir, geçici tablo yeniden adlandırılır.
+
+    `app/db/session.py` yabancı anahtar denetimini `Engine` sınıfının
+    TAMAMINDA açıyor; Alembic'in motoru da bundan etkileniyor. Denetim açıkken
+    ara adımdaki `DROP TABLE products`, `product_rates` üzerindeki
+    `ON DELETE CASCADE` kısıtını tetikliyor ve çocuk satırları siliyor —
+    hata vermeden, sessizce. 0002 göçünde bire bir ölçüldü: 1 oran satırı
+    göç sonrası 0'a düştü.
+
+    PRAGMA işlem (transaction) içinde ETKİSİZDİR; bu yüzden doğrudan DBAPI
+    bağlantısı üzerinden, Alembic işlemi başlatmadan önce çalıştırılır.
+
+    Args:
+        connection: Göçün üzerinde çalışacağı SQLAlchemy bağlantısı.
+    """
+    if connection.dialect.name != "sqlite":
+        return
+    cursor = connection.connection.cursor()
+    try:
+        cursor.execute("PRAGMA foreign_keys=OFF")
+    finally:
+        cursor.close()
+
+
 def run_migrations_offline() -> None:
     """Bağlantı açmadan SQL betiği üretir (--sql modu)."""
     context.configure(
@@ -66,6 +97,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        _sqlite_yabanci_anahtar_denetimini_kapat(connection)
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
