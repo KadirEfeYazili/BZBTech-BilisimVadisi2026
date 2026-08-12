@@ -22,6 +22,7 @@ from app.db.base import Base, TimestampMixin, UtcDateTime, utc_now
 
 if TYPE_CHECKING:
     from app.db.models.bank import Bank
+    from app.db.models.campaign_category import CampaignCategory
     from app.db.models.campaign_extraction import CampaignExtraction
     from app.db.models.campaign_metric import CampaignMetric
     from app.db.models.source_document import SourceDocument
@@ -121,5 +122,9 @@ class Campaign(TimestampMixin, Base):
         back_populates="campaign", cascade="all, delete-orphan", uselist=False
     )
     extractions: Mapped[list[CampaignExtraction]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
+    # Çok eksenli taksonomi etiketleri
+    categories: Mapped[list[CampaignCategory]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )

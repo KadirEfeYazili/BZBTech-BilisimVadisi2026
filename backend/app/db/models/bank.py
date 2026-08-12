@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.db.models.calculator import CalculatorInventory, CalculatorProbe
     from app.db.models.campaign import Campaign
     from app.db.models.product import Product
     from app.db.models.scrape_run import ScrapeRun
@@ -72,5 +73,11 @@ class Bank(TimestampMixin, Base):
         back_populates="bank", cascade="all, delete-orphan"
     )
     scrape_runs: Mapped[list[ScrapeRun]] = relationship(
+        back_populates="bank", cascade="all, delete-orphan"
+    )
+    calculator_inventories: Mapped[list[CalculatorInventory]] = relationship(
+        back_populates="bank", cascade="all, delete-orphan"
+    )
+    calculator_probes: Mapped[list[CalculatorProbe]] = relationship(
         back_populates="bank", cascade="all, delete-orphan"
     )
