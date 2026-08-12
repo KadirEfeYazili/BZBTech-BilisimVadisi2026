@@ -129,8 +129,11 @@ class TestArsivButunlugu:
         # Her iki anlık görüntü de korunmalı ve kendi özetiyle eşleşmeli.
         assert sha256_text(ilk_dosya.read_bytes().decode("utf-8")) == ilk.raw_html_sha256
         assert sha256_text(ikinci_dosya.read_bytes().decode("utf-8")) == ikinci.raw_html_sha256
-        assert "31.12.2026" in ilk_dosya.read_text(encoding="utf-8", newline="")
-        assert "31.01.2027" in ikinci_dosya.read_text(encoding="utf-8", newline="")
+        # Baytlar okunup elle çözülür: `Path.read_text(newline=...)` yalnızca
+        # Python 3.13+'te var, proje ise 3.11'i destekliyor. Ayrıca metin kipi
+        # satır sonlarını dönüştürüp Windows'ta özet karşılaştırmasını bozardı.
+        assert "31.12.2026" in ilk_dosya.read_bytes().decode("utf-8")
+        assert "31.01.2027" in ikinci_dosya.read_bytes().decode("utf-8")
 
     def test_ayni_icerik_tek_dosyada_saklanir(
         self, tmp_path: Path, make_transport: Callable[..., httpx.MockTransport]
