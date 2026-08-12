@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+  Ziraat Katılım konut/gayrimenkul finansmanı hesaplama aracının SADELEŞTİRİLMİŞ
+  yapısal kopyası.
+
+  Amaç: 16 seçenekli finansman tipi dropdown'ının envanterlenmesini ve bu
+  seçeneklerin ürün varyantına dönüşmesini AĞA ÇIKMADAN test etmek (§13).
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Konut / Gayrimenkul Finansmanı Hesaplama | Ziraat Katılım</title>
+</head>
+<body>
+  <main>
+    <h1>Konut / Gayrimenkul Finansmanı Hesaplama</h1>
+
+    <form id="hesaplamaFormu">
+      <label for="finansmanTipi">Finansman Tipi</label>
+      <select name="finansmanTipi" id="finansmanTipi">
+        <option value="">Seçiniz</option>
+        <option value="1">Sıfır Konut</option>
+        <option value="2">2. El Konut</option>
+        <option value="3">Kentsel Dönüşüm Finansmanı</option>
+        <option value="4">Tamamlayıcı Konut Finansmanı</option>
+        <option value="5">Arsa Finansmanı</option>
+        <option value="6">İş Yeri Finansmanı</option>
+        <option value="7">TOKİ Konut Finansmanı</option>
+        <option value="8">Çevre Dostu Konut Finansmanı</option>
+        <option value="9">Enerji Sınıfı A Konut</option>
+        <option value="10">Enerji Sınıfı B Konut</option>
+        <option value="11">Maaş Müşterisi Konut Finansmanı</option>
+        <option value="12">Kamu Çalışanı Konut Finansmanı</option>
+        <option value="13">Yeni Müşteri Konut Finansmanı</option>
+        <option value="14">Karz-ı Hasen Finansmanı</option>
+        <option value="15">Sürdürülebilir Yapı Finansmanı</option>
+        <option value="16">Gayrimenkul Yatırım Paketi</option>
+      </select>
+
+      <label for="tutar">Finansman Tutarı</label>
+      <input type="range" name="tutar" id="tutar"
+             min="50000" max="5000000" step="1000" value="500000">
+
+      <label for="vade">Vade</label>
+      <select name="vade" id="vade">
+        <option value="12">12 Ay</option>
+        <option value="24">24 Ay</option>
+        <option value="36">36 Ay</option>
+        <option value="48">48 Ay</option>
+        <option value="60">60 Ay</option>
+      </select>
+
+      <fieldset>
+        <legend>Sigorta Durumu</legend>
+        <input type="radio" name="sigortaDurumu" id="sigortaliSecim" value="1">
+        <label for="sigortaliSecim">Sigortalı</label>
+        <input type="radio" name="sigortaDurumu" id="sigortasizSecim" value="0">
+        <label for="sigortasizSecim">Sigortasız</label>
+      </fieldset>
+
+      <input type="hidden" name="__RequestVerificationToken" value="abc123">
+      <input type="submit" value="Hesapla">
+    </form>
+
+    <p class="uyari">
+      Yapılan hesaplamalar bilgi amaçlıdır bağlayıcı bir fiyat içermemektedir.
+    </p>
+  </main>
+</body>
+</html>
