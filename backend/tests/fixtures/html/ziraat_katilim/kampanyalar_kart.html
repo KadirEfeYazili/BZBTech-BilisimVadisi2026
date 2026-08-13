@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  Ziraat Katılım "kart-kampanyalari" kategori listeleme sayfasının
+  SADELEŞTİRİLMİŞ yapısal kopyası.
+
+  Korunanlar (testin ölçtüğü davranışlar):
+    - Kanonik detay kalıbı /kart-kampanyalari/{slug}
+    - Slug sonundaki -1 / -2 dönem ekleri
+    - HTTP 493 döndüren /bireysel/kampanyalar/ kalıbına giden tuzak bağlantı
+    - Dış bağlantı ve kategori kökünün kendisi
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Kart Kampanyaları | Ziraat Katılım</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+      <a href="/kampanyalar/kart-kampanyalari">Kart Kampanyaları</a>
+      <a href="/bireysel/kampanyalar/tanitim-karti">Bireysel Kampanyalar</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Kart Kampanyaları</h1>
+
+    <div class="kampanya-listesi">
+      <a href="/kart-kampanyalari/akaryakitta-250-tl-bonus">
+        <h3>Akaryakıtta 250 TL Bonus</h3>
+      </a>
+      <a href="/kart-kampanyalari/markette-taksit-firsati-2">
+        <h3>Markette Taksit Fırsatı</h3>
+      </a>
+      <a href="https://www.ziraatkatilim.com.tr/kart-kampanyalari/e-ticarette-indirim">
+        <h3>E-Ticarette İndirim</h3>
+      </a>
+      <!-- Aynı kampanyaya ikinci bağlantı: tekilleştirilmeli -->
+      <a href="/kart-kampanyalari/akaryakitta-250-tl-bonus/">Detay</a>
+    </div>
+
+    <aside>
+      <a href="https://www.instagram.com/ziraatkatilim">Bizi takip edin</a>
+      <a href="mailto:iletisim@ziraatkatilim.com.tr">E-posta</a>
+    </aside>
+  </main>
+
+  <footer>
+    <a href="/hakkimizda">Hakkımızda</a>
+  </footer>
+</body>
+</html>
