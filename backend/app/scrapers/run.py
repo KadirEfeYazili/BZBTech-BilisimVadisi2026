@@ -1,10 +1,10 @@
 """Kazıma komut satırı arayüzü.
 
 Kullanım:
-    python -m app.scrapers.run --bank emlak_katilim
-    python -m app.scrapers.run --bank hayat_finans
-    python -m app.scrapers.run --all
-    python -m app.scrapers.run --bank emlak_katilim --dry-run
+    python -m app.scrapers.run --banka emlak_katilim
+    python -m app.scrapers.run --tumu
+    python -m app.scrapers.run --banka emlak_katilim --dry-run
+    python -m app.scrapers.run --banka ziraat_katilim --kategori kart-kampanyalari --limit 5
 """
 
 from __future__ import annotations

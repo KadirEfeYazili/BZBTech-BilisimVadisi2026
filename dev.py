@@ -194,8 +194,15 @@ def web() -> int:
 
 
 def scrape() -> int:
-    """Kayıtlı tüm scraper'ları çalıştırır."""
-    return _calistir([_python(), "-m", "app.scrapers.run", "--all"], cwd=BACKEND)
+    """Kayıtlı scraper'ları çalıştırır.
+
+    Argümansız çağrıldığında tümünü çalıştırır. Tek banka veya pilot
+    doğrulama için argümanlar alt komuta olduğu gibi aktarılır:
+
+        python dev.py scrape --banka ziraat_katilim --kategori kart-kampanyalari --limit 5
+    """
+    ekler = _ek_argumanlar() or ["--tumu"]
+    return _calistir([_python(), "-m", "app.scrapers.run", *ekler], cwd=BACKEND)
 
 
 def scrape_deneme() -> int:
