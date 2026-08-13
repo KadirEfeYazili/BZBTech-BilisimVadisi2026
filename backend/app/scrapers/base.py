@@ -12,6 +12,7 @@ Hata sayılır, loglanır, döngü devam eder ve çalıştırma `partial` olarak
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -41,15 +42,25 @@ class BaseScraper(ABC):
         *,
         fetcher: Fetcher | None = None,
         settings: Settings | None = None,
+        categories: Sequence[str] | None = None,
+        limit: int | None = None,
     ) -> None:
         """
         Args:
             fetcher: Hazır çekici; testlerde sahte taşıyıcıyla verilir.
             settings: Uygulama ayarları.
+            categories: Yalnızca bu kategoriler taransın. Alt sınıf bu listeyi
+                `discover()` içinde dikkate alır; desteklemeyen scraper'da
+                yok sayılır.
+            limit: Çekilecek en fazla adres sayısı. Pilot doğrulamada tek bir
+                bankaya birkaç istekle bakabilmek içindir; canlı çalıştırmada
+                verilmez.
         """
         self.settings = settings or get_settings()
         self._fetcher = fetcher
         self._owns_fetcher = fetcher is None
+        self.categories = tuple(categories) if categories else None
+        self.limit = limit
 
     @property
     def fetcher(self) -> Fetcher:
@@ -129,6 +140,17 @@ class BaseScraper(ABC):
 
         result.urls_discovered = len(discovered)
         logger.info("kesif_tamamlandi", banka=self.bank_code, adres_sayisi=len(discovered))
+
+        # Limit keşiften SONRA uygulanır: `urls_discovered` bankada gerçekte
+        # kaç kampanya bulunduğunu göstermeye devam eder, yalnızca çekim daralır.
+        if self.limit is not None and len(discovered) > self.limit:
+            logger.info(
+                "limit_uygulandi",
+                banka=self.bank_code,
+                kesfedilen=len(discovered),
+                cekilecek=self.limit,
+            )
+            discovered = discovered[: self.limit]
 
         seen_slugs: set[str] = set()
         recorded_urls: set[str] = set()
