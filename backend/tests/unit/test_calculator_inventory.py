@@ -1,4 +1,4 @@
-"""Hesaplayıcı envanteri testleri (SPRINT 2 / KAPI 1).
+"""Hesaplayıcı envanteri testleri.
 
 Testler ağa çıkmaz: kaydedilmiş HTML üzerinde çalışır (§13).
 """
@@ -34,7 +34,7 @@ class TestFormEnvanteri:
     """`parse_form_controls` — form kontrollerinin çıkarılması."""
 
     def test_dropdown_secenekleri_tam_okunur(self, ziraat_form: CalculatorForm) -> None:
-        """⚠️ KAPI 1 geçiş koşulu: Ziraat'in 16 seçeneği tam liste olmalı."""
+        """⚠️ Ziraat'in 16 seçeneği tam liste olarak okunmalı."""
         etiketler = [s["label"] for s in ziraat_form.input_fields["finansmanTipi"]["options"]]
         assert len(etiketler) == 16
         assert etiketler[0] == "Sıfır Konut"

@@ -1,4 +1,4 @@
-"""Hesaplayıcı formunun envanterini çıkaran SAF fonksiyonlar (SPRINT 2 / KAPI 1).
+"""Hesaplayıcı formunun envanterini çıkaran SAF fonksiyonlar.
 
 Bu modülde ağ, veritabanı veya tarayıcı yoktur: girdi HTML, çıktı yapıdır.
 Tarayıcıyı sürmek `scripts/inventory_calculators.py`'nin işidir. Ayrım bilinçli

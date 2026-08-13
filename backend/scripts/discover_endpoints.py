@@ -1,4 +1,4 @@
-"""Kampanya listesi endpoint avı (SPRINT 2 / KAPI 1, Tur 1).
+"""Kampanya listesi endpoint avı.
 
 Dört bankada kampanya listesi sunucu HTML'inde GELMİYOR; sayfa açıldıktan
 sonra JavaScript bir uca istek atıp kartları oradan dolduruyor. O ucu bulmak,
@@ -242,7 +242,7 @@ def _rapor_yaz(sonuclar: list[HedefSonucu], *, playwright_var: bool) -> None:
     satirlar: list[str] = [
         "# Kampanya Listesi Endpoint Keşfi",
         "",
-        "> SPRINT 2 / KAPI 1 — Tur 1 çıktısı. `python dev.py kesif-endpoint` ile üretilir.",
+        "> `python dev.py kesif-endpoint` ile üretilir.",
         "",
     ]
 

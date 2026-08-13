@@ -1,4 +1,4 @@
-"""Hesaplayıcı envanteri (SPRINT 2 / KAPI 1, Tur 2).
+"""Hesaplayıcı envanteri.
 
 AMAÇ: Hesaplayıcının hangi girdileri kabul ettiğini ve ne kadar veri
 alınabileceğini SİSTEMATİK çıkarmak. Rastgele değer girip "acaba çalıştı mı"
@@ -11,7 +11,7 @@ verir. Hesaplayıcı hiç sorgulanmasa bile bu veri elde edilir.
 
 ⚠️ ETİK KURALLAR
   - Banka başına EN FAZLA 3 deneme isteği. Amaç mekanizmayı anlamak, veri
-    toplamak değil. (KAPI 1 geçiş koşulu bunu log ile doğrulamayı istiyor.)
+    toplamak değil. Yapılan deneme sayısı loglanır ve rapora yazılır.
   - İstekler arasında en az 2 saniye bekleme.
   - Kimliğimiz gizlenmez; gerçek User-Agent kullanılır.
   - Sayfadaki yasal uyarı birebir kaydedilir; hesaplayıcı çıktısı bankanın
@@ -62,7 +62,7 @@ logger = get_logger(__name__)
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 RAPOR_YOLU = REPO_ROOT / "docs" / "calculator_inventory.md"
 
-# ⚠️ KAPI 1 geçiş koşulu: banka başına 3'ten fazla deneme isteği atılmaz.
+# ⚠️ Banka başına 3'ten fazla deneme isteği atılmaz.
 MAX_DENEME = 3
 
 # İstekler arası bekleme. Hesaplayıcıda ≥2 sn (normal kazımada ≥1.5 sn).
@@ -353,7 +353,7 @@ def _rapor_yaz(sonuclar: list[EnvanterSonucu], *, playwright_var: bool) -> None:
     satirlar: list[str] = [
         "# Hesaplayıcı Envanteri",
         "",
-        "> SPRINT 2 / KAPI 1 — Tur 2 çıktısı. `python dev.py kesif-hesaplayici` ile üretilir.",
+        "> `python dev.py kesif-hesaplayici` ile üretilir.",
         "",
         "⚠️ Bu sayfalardan alınan değerler bankaların **taahhüdü değildir**; her kaydın",
         "`non_binding_notice` alanında sayfadaki yasal uyarı birebir saklanır.",

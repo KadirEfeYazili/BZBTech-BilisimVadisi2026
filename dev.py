@@ -7,6 +7,7 @@ kullanmaz; yalnızca Python standart kütüphanesiyle çalışır.
 
 Kullanım:
     python dev.py kur          # bağımlılıkları kur (backend + frontend)
+    python dev.py kur --playwright   # ek olarak tarayıcıyı da indir (~400 MB)
     python dev.py migrate      # veritabanı şemasını oluştur
     python dev.py seed         # 10 banka + terminoloji sözlüğü
     python dev.py api          # backend'i başlat  -> http://localhost:8000
@@ -15,6 +16,11 @@ Kullanım:
     python dev.py test         # testler + kapsam
     python dev.py lint         # ruff + mypy + tsc
     python dev.py baslat       # migrate + seed + api  (ilk kurulumdan sonra tek komut)
+
+Keşif komutları (gerçek banka sitelerine istek atar, Playwright ister):
+    python dev.py kesif-endpoint                      # kampanya listesi JSON uçları
+    python dev.py kesif-hesaplayici                   # hesaplayıcı form envanteri
+    python dev.py kesif-hesaplayici --banka ziraat_katilim --kuru
 
 Komut listesi için:
     python dev.py
@@ -33,6 +39,7 @@ from pathlib import Path
 KOK = Path(__file__).resolve().parent
 BACKEND = KOK / "backend"
 FRONTEND = KOK / "frontend"
+
 VENV = BACKEND / ".venv"
 
 WINDOWS = platform.system() == "Windows"
@@ -81,7 +88,7 @@ def kur() -> int:
     İNDİRİLMEZ: ~400 MB'lık indirme kapalı ağ (on-premise) kurulumunu
     zorlaştırır ve yalnızca keşif adımlarında gereklidir.
     """
-    if not VENV_PYTHON.is_file():
+    if _venv_python_yolu() is None:
         print("Sanal ortam oluşturuluyor...")
         kod = _calistir([sys.executable, "-m", "venv", str(VENV)])
         if kod != 0:
@@ -124,7 +131,7 @@ def _playwright_kur() -> int:
 
     Ayrı tutulmasının nedeni ~400 MB'lık tarayıcı indirmesidir; kapalı ağ
     kurulumunda gereksiz yere zorunlu bağımlılık olmamalıdır. Yalnızca
-    KAPI 1'deki keşif betikleri kullanır.
+    yalnızca keşif betikleri kullanır.
     """
     print("\nPlaywright kuruluyor (~400 MB tarayıcı indirmesi)...")
     kod = _calistir([_python(), "-m", "pip", "install", "playwright"])
@@ -199,7 +206,7 @@ def scrape_deneme() -> int:
 
 
 def kesif_endpoint() -> int:
-    """Kampanya listesi JSON uçlarını arar (KAPI 1, Tur 1).
+    """Kampanya listesi JSON uçlarını arar.
 
     ⚠️ Gerçek banka sitelerine istek atar. Playwright gerektirir; kurulu
     değilse keşif yapılmadan rapor üretilir.
@@ -210,7 +217,7 @@ def kesif_endpoint() -> int:
 
 
 def kesif_hesaplayici() -> int:
-    """Hesaplayıcı formlarını envanterler (KAPI 1, Tur 2).
+    """Hesaplayıcı formlarını envanterler.
 
     ⚠️ Gerçek banka sitelerine istek atar. Banka başına en fazla 3 deneme
     yapılır; sonuçlar `calculator_inventory` tablosuna ve
