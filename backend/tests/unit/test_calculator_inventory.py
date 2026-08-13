@@ -48,8 +48,7 @@ class TestFormEnvanteri:
     def test_value_niteligi_yoksa_etiket_deger_olur(self) -> None:
         """Bazı formlar `<option>` değerini yazmaz; etiket gerçek seçenektir."""
         form = parse_form_controls(
-            "<select name='tip'><option>Sıfır Konut</option>"
-            "<option>2. El Konut</option></select>"
+            "<select name='tip'><option>Sıfır Konut</option><option>2. El Konut</option></select>"
         )
         secenekler = form.input_fields["tip"]["options"]
         assert [s["value"] for s in secenekler] == ["Sıfır Konut", "2. El Konut"]
@@ -123,12 +122,12 @@ class TestVaryantEslemesi:
         assert (boyut, anahtar) == (beklenen_boyut, beklenen_anahtar)
 
     def test_turkce_karakter_ve_buyuk_harf_onemsiz(self) -> None:
-        """"SIFIR KONUT", "sıfır konut" ve "Sıfır Konut" aynı anahtara gider."""
+        """ "SIFIR KONUT", "sıfır konut" ve "Sıfır Konut" aynı anahtara gider."""
         sonuclar = {match_variant(y) for y in ("SIFIR KONUT", "sıfır konut", "Sıfır Konut")}
         assert sonuclar == {("konut_durumu", "sifir_konut")}
 
     def test_ozgul_kalip_genel_kaliba_baskin(self) -> None:
-        """"2. El Konut" hem 'konut' hem '2. el' içerir; birleşik kalıp kazanmalı."""
+        """ "2. El Konut" hem 'konut' hem '2. el' içerir; birleşik kalıp kazanmalı."""
         assert match_variant("2. El Konut") == ("konut_durumu", "ikinci_el_konut")
         assert match_variant("Sıfırsız 2. El Araç") == ("arac_durumu", "ikinci_el_arac")
 
@@ -145,9 +144,7 @@ class TestVaryantEslemesi:
 class TestVaryantAdaylari:
     """`variant_candidates` — dropdown → ürün varyantı."""
 
-    def test_varyant_alani_en_kalabalik_metinli_select(
-        self, ziraat_form: CalculatorForm
-    ) -> None:
+    def test_varyant_alani_en_kalabalik_metinli_select(self, ziraat_form: CalculatorForm) -> None:
         """Vade seçicisi (12, 24, 36) varyant değildir; finansman tipi varyanttır."""
         assert ziraat_form.variant_field_name == "finansmanTipi"
 
