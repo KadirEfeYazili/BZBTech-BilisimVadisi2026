@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <!--
-  Ziraat Katılım "kart-kampanyalari" kategori listeleme sayfasının
-  SADELEŞTİRİLMİŞ yapısal kopyası.
+  Ziraat Katılım /kart-kampanyalari listeleme sayfasının SADELEŞTİRİLMİŞ
+  yapısal kopyası. Kart yapısı canlı sayfadan birebir alınmıştır
+  (13 Ağustos 2026): item-image / item-content > item-category + item-title /
+  item-date > campaign-date.
 
-  Korunanlar (testin ölçtüğü davranışlar):
-    - Kanonik detay kalıbı /kart-kampanyalari/{slug}
+  Korunan davranışlar:
+    - Sektör etiketi kartın içinde (item-category) — bedava taksonomi
+    - Aynı kart iki kez basılıyor (çevrilen kart: front/back) — tekilleşmeli
     - Slug sonundaki -1 / -2 dönem ekleri
-    - HTTP 493 döndüren /bireysel/kampanyalar/ kalıbına giden tuzak bağlantı
-    - Dış bağlantı ve kategori kökünün kendisi
+    - /kampanyalar/{sektor} süzgeç bağlantıları kampanya DEĞİLDİR
+    - /bireysel/kampanyalar/ tuzağı ve dış bağlantılar
 -->
 <html lang="tr">
 <head>
@@ -18,7 +21,6 @@
   <header>
     <nav>
       <a href="/">Ana Sayfa</a>
-      <a href="/kampanyalar/kart-kampanyalari">Kart Kampanyaları</a>
       <a href="/bireysel/kampanyalar/tanitim-karti">Bireysel Kampanyalar</a>
     </nav>
   </header>
@@ -26,18 +28,69 @@
   <main>
     <h1>Kart Kampanyaları</h1>
 
+    <div class="filtreler">
+      <a href="/kampanyalar/kuyum-optik-ve-saat">Kuyum, Optik ve Saat</a>
+      <a href="/kampanyalar/akaryakit">Akaryakıt</a>
+      <a href="/kart-kampanyalari?IsArchived=true">Arşiv</a>
+    </div>
+
     <div class="kampanya-listesi">
-      <a href="/kart-kampanyalari/akaryakitta-250-tl-bonus">
-        <h3>Akaryakıtta 250 TL Bonus</h3>
-      </a>
-      <a href="/kart-kampanyalari/markette-taksit-firsati-2">
-        <h3>Markette Taksit Fırsatı</h3>
-      </a>
-      <a href="https://www.ziraatkatilim.com.tr/kart-kampanyalari/e-ticarette-indirim">
-        <h3>E-Ticarette İndirim</h3>
-      </a>
-      <!-- Aynı kampanyaya ikinci bağlantı: tekilleştirilmeli -->
-      <a href="/kart-kampanyalari/akaryakitta-250-tl-bonus/">Detay</a>
+
+      <div class="card">
+        <div class="front h-100 d-flex flex-column justify-content-between">
+          <div class="d-flex flex-column justify-content-between">
+            <div class="item-image"><img alt="Image" src="/sites/default/files/zen.jpg"></div>
+            <div class="item-content">
+              <span class="item-category">Kuyum, Optik ve Saat</span>
+              <br>
+              <div class="mt-10">
+                <a class="item-title mb-0 mt-10 stretched-link"
+                   href="/kart-kampanyalari/zen-pirlantada-3-taksit">Zen Pırlanta'da 3 Taksit</a>
+              </div>
+            </div>
+          </div>
+          <p class="item-date">Son Gün <span class="campaign-date">31.08.2026</span></p>
+        </div>
+        <!-- Çevrilen yüz: AYNI kampanya ikinci kez basılıyor -->
+        <div class="back h-100">
+          <div class="item-content">
+            <span class="item-category">Kuyum, Optik ve Saat</span>
+            <div class="mt-10">
+              <a class="item-title stretched-link"
+                 href="/kart-kampanyalari/zen-pirlantada-3-taksit">Detaylar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="front h-100">
+          <div class="item-image"><img alt="Image" src="/sites/default/files/teknosa.jpg"></div>
+          <div class="item-content">
+            <span class="item-category">Elektronik ve Telekomünikasyon</span>
+            <div class="mt-10">
+              <a class="item-title stretched-link"
+                 href="/kart-kampanyalari/teknosada-3-taksit">Teknosa'da 3 Taksit</a>
+            </div>
+          </div>
+          <p class="item-date">Son Gün <span class="campaign-date">31.08.2026</span></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="front h-100">
+          <div class="item-image"><img alt="Image" src="/sites/default/files/aile.jpg"></div>
+          <div class="item-content">
+            <span class="item-category">Genel Kampanyalar</span>
+            <div class="mt-10">
+              <a class="item-title stretched-link"
+                 href="/kart-kampanyalari/aile-karta-ozel-2000-tlye-varan-bankkart-lira-2">Aile Karta Özel</a>
+            </div>
+          </div>
+          <p class="item-date">Son Gün <span class="campaign-date">30.09.2026</span></p>
+        </div>
+      </div>
+
     </div>
 
     <aside>

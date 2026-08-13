@@ -246,8 +246,7 @@ class ZiraatKatilimScraper(BaseScraper):
             start_date=start_date,
             end_date=end_date,
             date_precision=precision,
-            is_archived=hint.discovery_method == "archive"
-            or ARCHIVE_PARAM in urlsplit(url).query,
+            is_archived=hint.discovery_method == "archive" or ARCHIVE_PARAM in urlsplit(url).query,
         )
 
     @staticmethod
