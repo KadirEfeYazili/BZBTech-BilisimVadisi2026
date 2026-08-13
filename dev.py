@@ -198,6 +198,38 @@ def scrape_deneme() -> int:
     )
 
 
+def kesif_endpoint() -> int:
+    """Kampanya listesi JSON uçlarını arar (KAPI 1, Tur 1).
+
+    ⚠️ Gerçek banka sitelerine istek atar. Playwright gerektirir; kurulu
+    değilse keşif yapılmadan rapor üretilir.
+    """
+    return _calistir(
+        [_python(), "-m", "scripts.discover_endpoints", *_ek_argumanlar()], cwd=BACKEND
+    )
+
+
+def kesif_hesaplayici() -> int:
+    """Hesaplayıcı formlarını envanterler (KAPI 1, Tur 2).
+
+    ⚠️ Gerçek banka sitelerine istek atar. Banka başına en fazla 3 deneme
+    yapılır; sonuçlar `calculator_inventory` tablosuna ve
+    `docs/calculator_inventory.md` dosyasına yazılır.
+    """
+    return _calistir(
+        [_python(), "-m", "scripts.inventory_calculators", *_ek_argumanlar()], cwd=BACKEND
+    )
+
+
+def _ek_argumanlar() -> list[str]:
+    """Komut adından sonraki argümanları alt betiğe geçirir.
+
+    `python dev.py kesif-hesaplayici --banka ziraat_katilim` çağrısında
+    `--banka ziraat_katilim` kısmını taşır.
+    """
+    return sys.argv[2:]
+
+
 def test() -> int:
     """Testleri kapsam raporuyla çalıştırır."""
     return _calistir(
@@ -262,6 +294,11 @@ GOREVLER: dict[str, tuple[Callable[[], int], str]] = {
     "web": (web, "Arayüzü başlatır (http://localhost:5173)"),
     "scrape": (scrape, "Tüm scraper'ları çalıştırır"),
     "scrape-deneme": (scrape_deneme, "Kazımayı veritabanına yazmadan dener"),
+    "kesif-endpoint": (kesif_endpoint, "Kampanya listesi JSON uçlarını arar (Playwright)"),
+    "kesif-hesaplayici": (
+        kesif_hesaplayici,
+        "Hesaplayıcı formlarını envanterler (Playwright)",
+    ),
     "test": (test, "Testleri kapsam raporuyla çalıştırır"),
     "lint": (lint, "ruff + mypy + tsc denetimi"),
     "bicimle": (bicimle, "Kodu biçimlendirir"),
