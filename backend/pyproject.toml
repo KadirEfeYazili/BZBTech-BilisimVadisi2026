@@ -109,8 +109,11 @@ plugins = []
 module = ["app.core.*", "app.scrapers.*"]
 strict = true
 
+# Playwright OPSİYONEL bağımlılıktır (`python dev.py kur --playwright`).
+# Kurulu olmadığı makinelerde de tip denetimi geçmelidir; `app/scrapers/browser.py`
+# zaten içe aktarımı çalışma zamanında koruyor.
 [[tool.mypy.overrides]]
-module = ["protego.*", "bs4.*"]
+module = ["protego.*", "bs4.*", "playwright.*"]
 ignore_missing_imports = true
 
 # ── Pytest ────────────────────────────────────────────────

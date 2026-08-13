@@ -75,7 +75,12 @@ def _zincir(*adimlar: Callable[[], int]) -> int:
 
 
 def kur() -> int:
-    """Backend sanal ortamını ve frontend paketlerini kurar."""
+    """Backend sanal ortamını ve frontend paketlerini kurar.
+
+    `--playwright` verilirse tarayıcı da indirilir. Varsayılan kurulumda
+    İNDİRİLMEZ: ~400 MB'lık indirme kapalı ağ (on-premise) kurulumunu
+    zorlaştırır ve yalnızca keşif adımlarında gereklidir.
+    """
     if not VENV_PYTHON.is_file():
         print("Sanal ortam oluşturuluyor...")
         kod = _calistir([sys.executable, "-m", "venv", str(VENV)])
@@ -90,6 +95,11 @@ def kur() -> int:
     if kod != 0:
         return kod
 
+    if "--playwright" in sys.argv[1:]:
+        kod = _playwright_kur()
+        if kod != 0:
+            return kod
+
     if shutil.which(_npm()) is None:
         print("\033[33mnpm bulunamadı; frontend kurulumu atlandı.\033[0m")
         print("Node.js 20+ kurup 'python dev.py kur' komutunu tekrar çalıştırın.")
@@ -101,7 +111,26 @@ def kur() -> int:
 
     _env_dosyasi_olustur()
     print("\n\033[32mKurulum tamam.\033[0m Sıradaki: python dev.py baslat")
+    if "--playwright" not in sys.argv[1:]:
+        print(
+            "\033[2mKeşif adımları (kesif-endpoint / kesif-hesaplayici) tarayıcı ister:"
+            "  python dev.py kur --playwright\033[0m"
+        )
     return 0
+
+
+def _playwright_kur() -> int:
+    """Playwright'ı ve Chromium'u indirir.
+
+    Ayrı tutulmasının nedeni ~400 MB'lık tarayıcı indirmesidir; kapalı ağ
+    kurulumunda gereksiz yere zorunlu bağımlılık olmamalıdır. Yalnızca
+    KAPI 1'deki keşif betikleri kullanır.
+    """
+    print("\nPlaywright kuruluyor (~400 MB tarayıcı indirmesi)...")
+    kod = _calistir([_python(), "-m", "pip", "install", "playwright"])
+    if kod != 0:
+        return kod
+    return _calistir([_python(), "-m", "playwright", "install", "chromium"])
 
 
 def _env_dosyasi_olustur() -> None:
