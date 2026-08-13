@@ -98,9 +98,7 @@ class TestKanonikAnahtar:
 
     def test_farkli_sayfa_ayirt_edilir(self) -> None:
         assert not same_page("https://ornek.com.tr/a", "https://ornek.com.tr/b")
-        assert not same_page(
-            "https://ornek.com.tr/k", "https://ornek.com.tr/k?IsArchived=true"
-        )
+        assert not same_page("https://ornek.com.tr/k", "https://ornek.com.tr/k?IsArchived=true")
 
 
 class TestTekillestirme:

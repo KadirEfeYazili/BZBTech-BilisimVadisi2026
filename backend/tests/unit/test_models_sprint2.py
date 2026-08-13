@@ -1,4 +1,4 @@
-"""SPRINT 2 
+"""SPRINT 2
 
 Buradaki kısıtlar "yanlış veriyi hata vererek reddet" içindir. Sessizce kabul
 edilen bozuk bir varyant etiketi ya da kaynağı belirtilmemiş bir oran,
