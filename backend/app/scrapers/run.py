@@ -136,8 +136,31 @@ def main(argv: list[str] | None = None) -> int:
         description="Katılım bankası kampanya kazıyıcısı",
     )
     target = parser.add_mutually_exclusive_group(required=True)
-    target.add_argument("--bank", help=f"Banka kodu ({', '.join(available_banks())})")
-    target.add_argument("--all", action="store_true", help="Kayıtlı tüm scraper'ları çalıştır")
+    target.add_argument(
+        "--bank",
+        "--banka",
+        dest="bank",
+        help=f"Banka kodu ({', '.join(available_banks())})",
+    )
+    target.add_argument(
+        "--all",
+        "--tumu",
+        dest="all",
+        action="store_true",
+        help="Kayıtlı tüm scraper'ları çalıştır",
+    )
+    parser.add_argument(
+        "--kategori",
+        action="append",
+        dest="categories",
+        metavar="AD",
+        help="Yalnızca bu kategoriyi tara; birden çok kez verilebilir",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Çekilecek en fazla adres sayısı (pilot doğrulama için)",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -145,6 +168,12 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
+
+    if args.limit is not None and args.limit < 1:
+        parser.error("--limit en az 1 olmalıdır")
+    # Kategori süzgeci tek bankada anlamlıdır: her bankanın kategori adları farklı.
+    if args.categories and args.all:
+        parser.error("--kategori yalnızca tek banka ile kullanılır (--banka)")
     configure_logging()
 
     # Windows konsolu varsayılan olarak cp1254 kullanır ve Türkçe karakterleri
@@ -163,7 +192,12 @@ def main(argv: list[str] | None = None) -> int:
 
     for bank_code in bank_codes:
         try:
-            result = run_bank(bank_code, dry_run=args.dry_run)
+            result = run_bank(
+                bank_code,
+                dry_run=args.dry_run,
+                categories=args.categories,
+                limit=args.limit,
+            )
         except AirgapError as exc:
             print(_colorize(f"\n{exc.message}", RED))
             return 2
