@@ -15,7 +15,9 @@ bölümü yok. Ham HTML saklanmazsa o veri bir daha elde edilemez.
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, Iterable
 from pathlib import Path
+from threading import Event
 from types import TracebackType
 from typing import Final
 
@@ -280,6 +282,7 @@ class Fetcher:
             final_url=final_url,
             status_code=response.status_code,
             html=html,
+            content=response.content,
             content_type=content_type,
             raw_html_path=archive_path,
             raw_html_sha256=archive_hash,
@@ -287,3 +290,51 @@ class Fetcher:
             is_soft_404=soft_404,
             error=None if response.status_code < 400 else f"HTTP {response.status_code}",
         )
+
+    # ── Toplu çekim ───────────────────────────────────────
+
+    def fetch_many(
+        self,
+        urls: Iterable[str],
+        *,
+        cancel_event: Event | None = None,
+        on_progress: Callable[[int, int], None] | None = None,
+    ) -> list[FetchResult]:
+        """Birden çok adresi SIRAYLA, hız sınırına uyarak çeker.
+
+        Sıralıdır ve bilinçli olarak paralelleştirilmemiştir: bu siteler gerçek
+        bankalara ait ve eşzamanlı istek yükü hız sınırı sözleşmesini bozar.
+
+        Args:
+            urls: Çekilecek adresler.
+            cancel_event: Kurulduğunda çekim durur ve o ana kadarki sonuçlar
+                döner. Kullanıcı tetiklemeli çekimin iptal edilebilmesi için.
+            on_progress: Her adresten sonra `(tamamlanan, toplam)` ile çağrılır.
+
+        Returns:
+            Çekim sonuçları; iptal edilmişse yalnızca tamamlananlar.
+        """
+        adresler = list(urls)
+        toplam = len(adresler)
+        sonuclar: list[FetchResult] = []
+
+        for sira, url in enumerate(adresler, start=1):
+            if cancel_event is not None and cancel_event.is_set():
+                logger.info(
+                    "toplu_cekim_iptal",
+                    banka=self._bank_code,
+                    tamamlanan=len(sonuclar),
+                    toplam=toplam,
+                )
+                break
+
+            sonuclar.append(self.fetch(url))
+
+            if on_progress is not None:
+                on_progress(sira, toplam)
+            if sira % 10 == 0 or sira == toplam:
+                logger.info(
+                    "toplu_cekim_ilerleme", banka=self._bank_code, tamamlanan=sira, toplam=toplam
+                )
+
+        return sonuclar

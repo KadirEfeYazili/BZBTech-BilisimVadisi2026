@@ -71,6 +71,13 @@ class FetchResult:
     is_soft_404: bool = False
     error: str | None = None
 
+    # ⚠️ Ham gövde, METNE ÇEVRİLMEDEN. Sitemap'ler için ZORUNLU: Hayat Finans,
+    # T.O.M. Bank ve Dünya Katılım `sitemap.xml` adresinde gzip kodlanmış bayt
+    # döndürüyor ama ne uzantı ne de `Content-Type` bunu belli ediyor. `html`
+    # alanı (metin) okunursa gzip baytları bozuk karakterlere dönüşür ve
+    # ayrıştırıcı SIFIR adres bulur — hata vermeden.
+    content: bytes | None = None
+
     @property
     def is_success(self) -> bool:
         """İçerik ayrıştırmaya uygun mu?"""
