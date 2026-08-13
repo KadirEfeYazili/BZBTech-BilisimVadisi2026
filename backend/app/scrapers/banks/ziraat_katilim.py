@@ -21,6 +21,7 @@ bir kanıttır; `category_hint` ile taşınır.
 from __future__ import annotations
 
 import re
+from datetime import date
 from typing import Final
 from urllib.parse import urljoin, urlsplit
 
@@ -237,7 +238,9 @@ class ZiraatKatilimScraper(BaseScraper):
         )
 
     @staticmethod
-    def _parse_dates(conditions: str | None, body_text: str) -> tuple[object, object, str]:
+    def _parse_dates(
+        conditions: str | None, body_text: str
+    ) -> tuple[date | None, date | None, str]:
         """Üç farklı tarih biçimini normalizasyon kütüphanesine devreder.
 
         Ziraat'te üç biçim gözlendi ve üçü de `parse_date_range_tr()` ile

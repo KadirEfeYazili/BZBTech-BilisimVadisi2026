@@ -48,7 +48,7 @@ class CalculatorInventory(TimestampMixin, Base):
     """Bir bankanın hesaplama aracının yapısal envanteri.
 
     ⚠️ Katılım terminolojisi: `total_combinations` kullanılır."""
-    
+
     __tablename__ = "calculator_inventory"
     __table_args__ = (
         # Aynı sayfa iki kez envanterlenmez; yeniden incelemede kayıt güncellenir.
