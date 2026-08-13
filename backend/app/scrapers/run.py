@@ -99,17 +99,25 @@ def _print_errors(results: list[ScrapeRunResult]) -> None:
             print(_colorize(f"  ... ve {kalan} hata daha", DIM))
 
 
-def run_bank(bank_code: str, *, dry_run: bool) -> ScrapeRunResult:
+def run_bank(
+    bank_code: str,
+    *,
+    dry_run: bool,
+    categories: list[str] | None = None,
+    limit: int | None = None,
+) -> ScrapeRunResult:
     """Tek bir bankanın scraper'ını çalıştırır.
 
     Args:
         bank_code: Banka kodu.
         dry_run: True ise veritabanına yazılmaz.
+        categories: Yalnızca bu kategoriler taranır (destekleyen scraper'larda).
+        limit: Çekilecek en fazla adres sayısı.
 
     Returns:
         Çalıştırma özeti.
     """
-    scraper = get_scraper(bank_code)
+    scraper = get_scraper(bank_code, categories=categories, limit=limit)
     try:
         with SessionLocal() as session:
             return scraper.run(session, dry_run=dry_run)

@@ -9,12 +9,14 @@ from __future__ import annotations
 from app.core.exceptions import NotFoundError
 from app.scrapers.banks.emlak_katilim import EmlakKatilimScraper
 from app.scrapers.banks.hayat_finans import HayatFinansScraper
+from app.scrapers.banks.ziraat_katilim import ZiraatKatilimScraper
 from app.scrapers.base import BaseScraper
 
-# PART 1 kapsamındaki scraper'lar. Kalan 9 banka PART 2'de eklenecek.
+# Kayıtlı scraper'lar. Kalan bankalar eklendikçe bu sözlük büyür.
 BANK_REGISTRY: dict[str, type[BaseScraper]] = {
     EmlakKatilimScraper.bank_code: EmlakKatilimScraper,
     HayatFinansScraper.bank_code: HayatFinansScraper,
+    ZiraatKatilimScraper.bank_code: ZiraatKatilimScraper,
 }
 
 
