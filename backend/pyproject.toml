@@ -87,6 +87,9 @@ ignore = [
 # is_soft_404(html, url) imzası şartnamede sabittir; `url` şu an yalnızca
 # çağıran tarafın bağlamı için taşınır, gelecekteki sezgilerde kullanılacaktır.
 "app/scrapers/soft404.py" = ["ARG001"]
+# Adil Katılım kampanya üretmez: `parse_detail` daima None döner. İmza
+# `BaseScraper` sözleşmesi gereği sabittir, `html` ve `hint` kullanılmaz.
+"app/scrapers/banks/adil_katilim.py" = ["ARG002"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]

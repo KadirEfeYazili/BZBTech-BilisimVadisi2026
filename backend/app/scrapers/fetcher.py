@@ -122,6 +122,20 @@ class Fetcher:
         if self._owns_client:
             self._client.close()
 
+    def add_soft_404_hash(self, fingerprint: str) -> None:
+        """Bilinen bir "sayfa yok" içerik özetini çalışma anında ekler.
+
+        Bazı siteler yer tutucu sayfayı HTTP 200 ile döndürüyor ve o sayfada
+        hiçbir hata ifadesi bulunmuyor; tek ayırt edici işaret içeriğin ana
+        sayfayla birebir aynı olması. O özet ancak çalıştırma sırasında ana
+        sayfa çekilerek öğrenilebildiği için yapıcıya verilemiyor.
+
+        Args:
+            fingerprint: `app.scrapers.soft404.content_fingerprint()` çıktısı.
+        """
+        if fingerprint:
+            self._soft_404_hashes.add(fingerprint)
+
     # ── İç yardımcılar ────────────────────────────────────
 
     def _guard_airgap(self) -> None:
