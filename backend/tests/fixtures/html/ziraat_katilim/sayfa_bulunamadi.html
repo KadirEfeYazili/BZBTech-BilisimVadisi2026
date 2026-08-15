@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!--
+  ⚠️ Ziraat Katılım'ın "sayfa yok" yanıtı — canlı çekimde ölçüldü.
+
+  Sunucu HTTP 200 döndürüyor. Sayfanın GÖRÜNEN ilk başlığı logo metni
+  ("Ziraat Katılım Bankası") olduğu için başlık zincirine bakan soft-404
+  sezgisi hata ifadesini göremiyordu; 2 çöp kayıt bu yolla oluştu.
+
+  Hata bilgisi <title> etiketinde ve ikinci <h1>'de duruyor. Bu fixture
+  her iki sinyali de korur.
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Sayfa bulunamadı | Ziraat Katılım</title>
+  <meta property="og:title" content="Sayfa bulunamadı">
+</head>
+<body>
+  <header>
+    <a href="/" class="logo"><h1>Ziraat Katılım Bankası</h1></a>
+  </header>
+
+  <main>
+    <h1>Üzgünüz, Sayfa Bulunamadı!</h1>
+    <p>Aradığınız sayfaya şu anda ulaşılamıyor.</p>
+    <a href="/">Ana sayfaya dön</a>
+  </main>
+</body>
+</html>
