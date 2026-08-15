@@ -3,10 +3,28 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.bank import BankBase
+
+
+class CampaignCategoryOut(BaseModel):
+    """Kampanyanın tek bir eksendeki tek bir etiketi.
+
+    Her etiket KANITIYLA döner: hangi kaynaktan (`source`) ve hangi metinden
+    (`evidence`) çıkarıldığı arayüzde gösterilebilir. Kaynaksız etiket
+    bankacılıkta kabul edilemez.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    axis: str = Field(description="product_type | sector | audience | benefit")
+    value: str = Field(description="Kontrollü sözlükten bir değer")
+    confidence: Decimal = Field(description="0-1 arası; 1.00 bankanın kendi verisi")
+    source: str = Field(description="url | bank_category | merchant | keyword | llm")
+    evidence: str | None = Field(default=None, description="Etiketin dayandığı metin")
 
 
 class CampaignListItem(BaseModel):
@@ -20,7 +38,14 @@ class CampaignListItem(BaseModel):
     external_slug: str
     title: str
     category: str | None = Field(
-        default=None, description="PART 1'de daima null; PART 3'te sınıflandırılacak"
+        default=None, description="Nihai (çıkarılmış) sınıflandırma; sonraki sprintte dolar"
+    )
+    bank_category: str | None = Field(
+        default=None, description="Bankanın KENDİ kategori etiketi, ham hâliyle"
+    )
+    categories: list[CampaignCategoryOut] = Field(
+        default_factory=list,
+        description="Dört eksenli taksonomi etiketleri, kanıtlarıyla",
     )
     segment: str | None = None
     target_customer: str | None = None
