@@ -196,6 +196,7 @@ class EmlakKatilimScraper(BaseScraper):
             exclusions_text=exclusions,
             # Sitede kategori etiketi YOK — PART 3'te sınıflandırılacak.
             category=None,
+            bank_category=hint.category_hint,
             segment=hint.segment_hint,
             start_date=start_date,
             end_date=end_date,

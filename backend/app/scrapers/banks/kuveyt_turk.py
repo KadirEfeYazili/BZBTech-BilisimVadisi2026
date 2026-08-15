@@ -256,6 +256,7 @@ class KuveytTurkScraper(BaseScraper):
             conditions_text=conditions,
             exclusions_text=extract_section_text(html, EXCLUSION_KEYWORDS),
             category=None,
+            bank_category=hint.category_hint,
             segment=hint.segment_hint or self.segment_from_url(url),
             start_date=start_date,
             end_date=end_date,

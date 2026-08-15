@@ -268,6 +268,7 @@ class TurkiyeFinansScraper(BaseScraper):
             conditions_text=extract_section_text(html, CONDITION_KEYWORDS),
             exclusions_text=extract_section_text(html, EXCLUSION_KEYWORDS),
             category=None,
+            bank_category=hint.category_hint,
             segment=hint.segment_hint,
             # ⚠️ Tarih verisi YOK — uydurulmaz, NULL bırakılır.
             start_date=None,

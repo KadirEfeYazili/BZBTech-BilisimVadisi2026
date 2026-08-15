@@ -235,6 +235,7 @@ class VakifKatilimScraper(BaseScraper):
             conditions_text=conditions,
             exclusions_text=extract_section_text(html, EXCLUSION_KEYWORDS),
             category=None,
+            bank_category=hint.category_hint,
             # Keşiften gelmediyse adresten yeniden çıkarılır.
             segment=hint.segment_hint or self.segment_from_url(url),
             start_date=start_date,

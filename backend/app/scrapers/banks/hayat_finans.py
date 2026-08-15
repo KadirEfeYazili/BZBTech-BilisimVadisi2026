@@ -235,6 +235,7 @@ class HayatFinansScraper(BaseScraper):
             conditions_text=conditions,
             exclusions_text=exclusions,
             category=None,
+            bank_category=hint.category_hint,
             segment=hint.segment_hint,
             start_date=start_date,
             end_date=end_date,

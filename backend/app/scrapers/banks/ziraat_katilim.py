@@ -264,6 +264,7 @@ class ZiraatKatilimScraper(BaseScraper):
             # Kanonik sınıflandırma ayrı adımda yapılır; bankanın ham sektör
             # etiketi `hint.category_hint` üzerinden taşınır.
             category=None,
+            bank_category=hint.category_hint,
             segment=hint.segment_hint,
             start_date=start_date,
             end_date=end_date,
