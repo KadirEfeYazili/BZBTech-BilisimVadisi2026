@@ -86,9 +86,14 @@ class Campaign(TimestampMixin, Base):
     # PART 3'te LLM ile doldurulacak; PART 1'de daima NULL.
     summary_ai: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # PART 3'te sınıflandırma ile doldurulacak; sitelerde kategori etiketi yok.
+    # Nihai (çıkarılmış) sınıflandırma. Sonraki sprintte doldurulacak.
     category: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
     category_confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+
+    # ⚠️ Bankanın KENDİ kategori etiketi, ham hâliyle ("Giyim ve Aksesuar").
+    # Çıkarım değil kaynak veridir; taksonomide güveni 1.00'dır. `category`
+    # ile karıştırılmaz: biri bankanın dediği, öteki bizim çıkardığımızdır.
+    bank_category: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     segment: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
     target_customer: Mapped[str | None] = mapped_column(Text, nullable=True)
