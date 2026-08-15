@@ -38,6 +38,9 @@ class RawCampaign:
     conditions_text: str | None = None
     exclusions_text: str | None = None
     category: str | None = None
+    # Bankanın kendi kategori etiketi, ham hâliyle. Keşiften taşınır ve
+    # sınıflandırmada güveni 1.00 olan kanıt olarak kullanılır.
+    bank_category: str | None = None
     segment: str | None = None
     target_customer: str | None = None
     start_date: date | None = None

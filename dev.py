@@ -235,6 +235,15 @@ def kesif_hesaplayici() -> int:
     )
 
 
+def siniflandir() -> int:
+    """Kampanyaları dört eksende sınıflandırır ve raporu üretir.
+
+    Kayıtlı veriden çalışır, AĞA ÇIKMAZ. Sözlük genişletildikçe yeniden
+    çalıştırılabilir; bankalara yeni istek gitmez.
+    """
+    return _calistir([_python(), "-m", "scripts.categorize", *_ek_argumanlar()], cwd=BACKEND)
+
+
 def _ek_argumanlar() -> list[str]:
     """Komut adından sonraki argümanları alt betiğe geçirir.
 
@@ -308,6 +317,7 @@ GOREVLER: dict[str, tuple[Callable[[], int], str]] = {
     "web": (web, "Arayüzü başlatır (http://localhost:5173)"),
     "scrape": (scrape, "Tüm scraper'ları çalıştırır"),
     "scrape-deneme": (scrape_deneme, "Kazımayı veritabanına yazmadan dener"),
+    "siniflandir": (siniflandir, "Kampanyaları dört eksende sınıflandırır (ağa çıkmaz)"),
     "kesif-endpoint": (kesif_endpoint, "Kampanya listesi JSON uçlarını arar (Playwright)"),
     "kesif-hesaplayici": (
         kesif_hesaplayici,

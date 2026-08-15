@@ -297,6 +297,7 @@ class BaseScraper(ABC):
                     segment=raw.segment,
                     target_customer=raw.target_customer,
                     category=raw.category,
+                    bank_category=raw.bank_category,
                     start_date=raw.start_date,
                     end_date=raw.end_date,
                     date_precision=raw.date_precision,
@@ -323,6 +324,7 @@ class BaseScraper(ABC):
         existing.source_document_id = document.id
         existing.title = raw.title
         existing.description = raw.description
+        existing.bank_category = raw.bank_category
         existing.segment = raw.segment
         existing.target_customer = raw.target_customer
         existing.start_date = raw.start_date
