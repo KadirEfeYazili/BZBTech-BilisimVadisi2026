@@ -9,7 +9,7 @@ from fastapi import APIRouter, Path, Query
 
 from app.api.deps import DbSession
 from app.db.models import Campaign
-from app.schemas.campaign import CampaignDetail, CampaignListItem
+from app.schemas.campaign import CampaignCategoryOut, CampaignDetail, CampaignListItem
 from app.schemas.common import Page
 from app.services.campaign_service import (
     DEFAULT_PAGE_SIZE,
@@ -31,6 +31,8 @@ def _to_list_item(campaign: Campaign) -> CampaignListItem:
         external_slug=campaign.external_slug,
         title=campaign.title,
         category=campaign.category,
+        bank_category=campaign.bank_category,
+        categories=[CampaignCategoryOut.model_validate(c) for c in campaign.categories],
         segment=campaign.segment,
         target_customer=campaign.target_customer,
         start_date=campaign.start_date,
@@ -51,6 +53,10 @@ def read_campaigns(
     segment: Annotated[str | None, Query()] = None,
     target_customer: Annotated[str | None, Query()] = None,
     status: Annotated[Literal["active", "upcoming", "expired", "unknown"] | None, Query()] = None,
+    sector: Annotated[str | None, Query(description="Taksonomi: harcama sektörü")] = None,
+    product_type: Annotated[str | None, Query(description="Taksonomi: ürün türü")] = None,
+    audience: Annotated[str | None, Query(description="Taksonomi: hedef kitle")] = None,
+    benefit: Annotated[str | None, Query(description="Taksonomi: fayda türü")] = None,
     q: Annotated[str | None, Query(description="Başlık ve açıklamada arama")] = None,
     start_after: Annotated[date | None, Query()] = None,
     end_before: Annotated[date | None, Query()] = None,
@@ -71,6 +77,10 @@ def read_campaigns(
         segment=segment,
         target_customer=target_customer,
         status=status,
+        sector=sector,
+        product_type=product_type,
+        audience=audience,
+        benefit=benefit,
         q=q,
         start_after=start_after,
         end_before=end_before,

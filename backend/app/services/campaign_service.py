@@ -13,10 +13,10 @@ from typing import Final
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import Select, func, nulls_last, or_, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core.exceptions import NotFoundError
-from app.db.models import Bank, Campaign
+from app.db.models import Bank, Campaign, CampaignCategory
 
 # Kampanya tarihleri Türkiye yerel takvimine göre değerlendirilir: bir kampanya
 # "31.12.2026'ya kadar" ise Türkiye'de 31 Aralık boyunca geçerlidir.
@@ -88,6 +88,12 @@ class CampaignFilters:
     segment: str | None = None
     target_customer: str | None = None
     status: str | None = None
+    # Taksonomi süzgeci: `sector=market_gida` gibi. Eksen adı → değer.
+    # Birden fazla eksen verilirse hepsini birden sağlayan kampanyalar döner.
+    sector: str | None = None
+    product_type: str | None = None
+    audience: str | None = None
+    benefit: str | None = None
     q: str | None = None
     start_after: date | None = None
     end_before: date | None = None
@@ -122,6 +128,30 @@ def _apply_filters(
         statement = statement.where(Campaign.start_date >= filters.start_after)
     if filters.end_before:
         statement = statement.where(Campaign.end_date <= filters.end_before)
+
+    # Taksonomi süzgeçleri. Her eksen AYRI bir alt sorgudur: bir kampanya
+    # hem `sector=market_gida` hem `benefit=taksit` etiketini taşıyabilir ve
+    # ikisi de aranıyorsa İKİSİNİ BİRDEN sağlaması gerekir. Tek JOIN ile
+    # yazılsaydı aynı satırda iki farklı etiket aranır ve sonuç daima boş
+    # dönerdi.
+    for eksen, deger in (
+        ("sector", filters.sector),
+        ("product_type", filters.product_type),
+        ("audience", filters.audience),
+        ("benefit", filters.benefit),
+    ):
+        if not deger:
+            continue
+        statement = statement.where(
+            select(CampaignCategory.id)
+            .where(
+                CampaignCategory.campaign_id == Campaign.id,
+                CampaignCategory.axis == eksen,
+                CampaignCategory.value == deger,
+            )
+            .exists()
+        )
+
     return statement
 
 
@@ -171,7 +201,11 @@ def list_campaigns(session: Session, filters: CampaignFilters) -> tuple[list[Cam
     count_statement = select(func.count()).select_from(base.subquery())
     total = session.scalar(count_statement) or 0
 
-    statement = _apply_sort(base, filters).options(joinedload(Campaign.bank))
+    statement = _apply_sort(base, filters).options(
+        joinedload(Campaign.bank),
+        # Taksonomi etiketleri listede de gösteriliyor; N+1 sorgu olmasın.
+        selectinload(Campaign.categories),
+    )
     statement = statement.offset((page - 1) * page_size).limit(page_size)
 
     campaigns = list(session.scalars(statement).unique().all())
@@ -194,7 +228,11 @@ def get_campaign(session: Session, campaign_id: int) -> Campaign:
     campaign = session.scalar(
         select(Campaign)
         .where(Campaign.id == campaign_id)
-        .options(joinedload(Campaign.bank), joinedload(Campaign.source_document))
+        .options(
+            joinedload(Campaign.bank),
+            joinedload(Campaign.source_document),
+            selectinload(Campaign.categories),
+        )
     )
     if campaign is None:
         raise NotFoundError(f"Kampanya bulunamadı: {campaign_id}")
