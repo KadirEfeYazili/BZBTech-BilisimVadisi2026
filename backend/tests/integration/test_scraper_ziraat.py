@@ -335,6 +335,52 @@ class TestDetayAyristirma:
         assert ham is not None
         assert ham.title == "Zen Pırlanta'da 3 Taksit"
 
+    def test_marka_h1_baslik_olarak_alinmaz(
+        self,
+        tmp_path: Path,
+        fixtures: dict[str, str],
+        make_transport: Callable[..., httpx.MockTransport],
+    ) -> None:
+        """⚠️ Canlı çekimde 209 kampanyanın 209'u "Ziraat Katılım Bankası" olmuştu."""
+        scraper = _scraper(tmp_path, make_transport({}))
+        try:
+            ham = scraper.parse_detail(fixtures["marka_h1"], ZEN_URL, self._hint())
+        finally:
+            scraper.close()
+
+        assert ham is not None
+        assert ham.title == "Sosyopix'te %20 İndirim"
+
+    def test_sayfa_bulunamadi_kampanya_olarak_kaydedilmez(
+        self,
+        tmp_path: Path,
+        seeded_session: Session,
+        fixtures: dict[str, str],
+        make_transport: Callable[..., httpx.MockTransport],
+    ) -> None:
+        """⚠️ Canlı çekimde 2 "sayfa yok" yanıtı kampanya olarak kaydedilmişti.
+
+        Sayfanın görünen ilk başlığı logo metni olduğu için soft-404 sezgisi
+        hata ifadesini göremiyordu.
+        """
+        transport = make_transport(
+            {
+                LISTING_URL: (200, fixtures["liste"]),
+                ZEN_URL: (200, fixtures["bulunamadi"]),
+                TEKNOSA_URL: (200, fixtures["donem"]),
+                AILE_URL: (200, fixtures["donem"]),
+            }
+        )
+        scraper = _scraper(tmp_path, transport)
+        try:
+            sonuc = scraper.run(seeded_session)
+        finally:
+            scraper.close()
+
+        assert sonuc.campaigns_new == 2
+        basliklar = {k.title for k in seeded_session.scalars(select(Campaign))}
+        assert "Ziraat Katılım Bankası" not in basliklar
+
     def test_slug_adresten_birebir_okunur(
         self,
         tmp_path: Path,

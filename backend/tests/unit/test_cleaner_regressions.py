@@ -8,7 +8,7 @@ sayfalar çekildiğinde ortaya çıkan hatalara karşılık gelir. Hepsinin orta
 from __future__ import annotations
 
 from app.core.normalization.date_tr import parse_date_range_tr
-from app.processing.cleaner import clean_html, extract_title
+from app.processing.cleaner import clean_html, extract_section_text, extract_title
 from app.utils.urls import host_of, is_same_site, normalize_host
 
 
@@ -158,3 +158,57 @@ class TestAlanAdiKarsilastirmasi:
     def test_host_sadeleştirme(self) -> None:
         assert normalize_host("WWW.Example.COM") == "example.com"
         assert host_of("https://www.emlakkatilim.com.tr/tr/x") == "emlakkatilim.com.tr"
+
+
+class TestSatirIciBaslikTuzagi:
+    """⚠️ Bölüm başlığı `<p>` içinde `<strong>` olduğunda içerik kaybolur.
+
+    Bankaların çoğu bölüm başlığını `<h2>` yerine bir paragrafın içine koyuyor.
+    Maddeler `<p>`'nin kardeşidir, `<strong>`'un değil; `<strong>` üzerinden
+    kardeş aramak boş liste döndürür.
+
+    Canlı veride ölçüldü: Ziraat'te 209 kampanyanın 209'unda, Emlak'ta 66'nın
+    66'sında `conditions_text` bu yüzden boş kalmıştı — hata vermeden.
+    """
+
+    def test_strong_baslikli_bolum_okunur(self) -> None:
+        html = (
+            "<html><body><div>"
+            "<p><strong>Kampanya Koşulları:</strong></p>"
+            "<ul><li>Birinci koşul metni burada yer alıyor.</li>"
+            "<li>İkinci koşul metni burada yer alıyor.</li></ul>"
+            "</div></body></html>"
+        )
+        sonuc = extract_section_text(html, ("kampanya koşul",))
+        assert sonuc is not None
+        assert "Birinci koşul" in sonuc
+        assert "İkinci koşul" in sonuc
+
+    def test_h2_baslikli_bolum_hala_okunur(self) -> None:
+        """Blok başlıklı yapı bozulmamalı."""
+        html = (
+            "<html><body>"
+            "<h2>Kampanya Koşulları</h2>"
+            "<ul><li>Koşul metni burada yer alıyor.</li></ul>"
+            "<h2>Başka Bölüm</h2><p>Alakasız.</p>"
+            "</body></html>"
+        )
+        sonuc = extract_section_text(html, ("kampanya koşul",))
+        assert sonuc is not None
+        assert "Koşul metni" in sonuc
+        assert "Alakasız" not in sonuc
+
+    def test_tirmanma_tum_govdeye_yayilmaz(self) -> None:
+        """Sınırsız tırmanma bölümü boilerplate'e boğardı."""
+        html = (
+            "<html><body>"
+            "<p>Sayfa başında alakasız bir metin bulunuyor burada.</p>"
+            "<div><div><div><p><strong>Kampanya Koşulları:</strong></p>"
+            "<ul><li>Gerçek koşul metni burada yer alıyor.</li></ul>"
+            "</div></div></div>"
+            "</body></html>"
+        )
+        sonuc = extract_section_text(html, ("kampanya koşul",))
+        assert sonuc is not None
+        assert "Gerçek koşul" in sonuc
+        assert "Sayfa başında" not in sonuc
