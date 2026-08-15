@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--
+  Türkiye Finans arşiv (Biten Kampanyalar) sayfası — sadeleştirilmiş kopya.
+  Buradan gelen kayıtlar `is_archived=True` olur.
+
+  ⚠️ Sayfadaki dönem/kategori seçicisi ASP.NET postback'idir; sunucu HTML'i
+  yalnızca ilk sayfayı verir. Zorlanmaz, gelen kayıtlar alınır.
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Biten Kampanyalar | Türkiye Finans</title>
+</head>
+<body>
+  <nav class="kampanya-menu">
+    <a href="/tr-tr/kampanyalar/Sayfalar/default.aspx">Kampanyalar</a>
+    <a href="/tr-tr/kampanyalar/Sayfalar/kart-kampanyalari.aspx">Kredi Kartı Kampanyaları</a>
+    <a href="/tr-tr/kampanyalar/Sayfalar/Biten-Kampanyalar.aspx">Biten Kampanyalar</a>
+  </nav>
+
+  <main>
+    <h1>Biten Kampanyalar</h1>
+
+    <table class="secici">
+      <tr>
+        <td>
+          <select name="kategori"><option>Seçiniz</option><option>Kart Kampanyaları</option></select>
+        </td>
+        <td><select name="yil"><option>2026</option><option>2025</option></select></td>
+      </tr>
+    </table>
+
+    <div class="kampanya-karti">
+      <a href="/tr-tr/kampanyalar/Sayfalar/tip-bayrami.aspx">Detaylı Bilgi</a>
+    </div>
+    <div class="kampanya-karti">
+      <a href="/tr-tr/kampanyalar/Sayfalar/babalar-gunu-avantajlar-2026.aspx">Detaylı Bilgi</a>
+    </div>
+    <div class="kampanya-karti">
+      <!-- Bu kampanya güncel listede de var: tekilleşmeli, kategorisi 'kart' kalmalı -->
+      <a href="/tr-tr/kampanyalar/Sayfalar/3-ay-ertelemeli-ihtiyac-finansmani.aspx">Detaylı Bilgi</a>
+    </div>
+  </main>
+</body>
+</html>
