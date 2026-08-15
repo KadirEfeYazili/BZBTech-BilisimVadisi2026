@@ -7,15 +7,33 @@ CLI ve testler scraper'lara yalnızca bu kayıt üzerinden erişir.
 from __future__ import annotations
 
 from app.core.exceptions import NotFoundError
+from app.scrapers.banks.adil_katilim import AdilKatilimScraper
+from app.scrapers.banks.albaraka import AlbarakaScraper
+from app.scrapers.banks.dunya_katilim import DunyaKatilimScraper
 from app.scrapers.banks.emlak_katilim import EmlakKatilimScraper
 from app.scrapers.banks.hayat_finans import HayatFinansScraper
+from app.scrapers.banks.kuveyt_turk import KuveytTurkScraper
+from app.scrapers.banks.tom_bank import TomBankScraper
+from app.scrapers.banks.turkiye_finans import TurkiyeFinansScraper
+from app.scrapers.banks.vakif_katilim import VakifKatilimScraper
 from app.scrapers.banks.ziraat_katilim import ZiraatKatilimScraper
 from app.scrapers.base import BaseScraper
 
-# Kayıtlı scraper'lar. Kalan bankalar eklendikçe bu sözlük büyür.
+# Kapsamdaki 10 katılım bankasının tamamı kayıtlıdır.
+#
+# ⚠️ Adil Katılım kampanya ÜRETMEZ ama listede DURUR: şartname "faaliyet
+# gösteren kuruluşların tümü" diyor ve "veri yok" bilgisi de bir bulgudur.
+# Çıkarılırsa o bankanın hiç denetlenmediği izlenimi doğar.
 BANK_REGISTRY: dict[str, type[BaseScraper]] = {
+    AdilKatilimScraper.bank_code: AdilKatilimScraper,
+    AlbarakaScraper.bank_code: AlbarakaScraper,
+    DunyaKatilimScraper.bank_code: DunyaKatilimScraper,
     EmlakKatilimScraper.bank_code: EmlakKatilimScraper,
     HayatFinansScraper.bank_code: HayatFinansScraper,
+    KuveytTurkScraper.bank_code: KuveytTurkScraper,
+    TomBankScraper.bank_code: TomBankScraper,
+    TurkiyeFinansScraper.bank_code: TurkiyeFinansScraper,
+    VakifKatilimScraper.bank_code: VakifKatilimScraper,
     ZiraatKatilimScraper.bank_code: ZiraatKatilimScraper,
 }
 
