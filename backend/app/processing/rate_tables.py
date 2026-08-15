@@ -163,6 +163,22 @@ def _variant_from_caption(caption: str | None) -> tuple[str | None, str | None]:
     return None, None
 
 
+def _term_months(raw: str) -> int | None:
+    """Vade hücresini ay sayısına çevirir.
+
+    ⚠️ Oran tablolarında vade çoğu zaman BİRİMSİZ yazılıyor ("3", "36").
+    `parse_term_months()` birim arayıp bulamayınca `(None, None)` döndürüyor;
+    tek başına kullanılırsa tablonun vade kolonu tamamen boş kalır.
+    """
+    temiz = raw.strip()
+    if temiz.isdigit():
+        return int(temiz)
+
+    alt, ust = parse_term_months(temiz)
+    # Tek satır tek vadeyi temsil eder; aralık gelirse üst sınır kullanılır.
+    return ust if ust is not None else alt
+
+
 def _parse_row(cells: list[str], columns: dict[int, str]) -> RateRow | None:
     """Veri satırını `RateRow`'a çevirir; veri yoksa None."""
     degerler: dict[str, object] = {}
@@ -175,11 +191,7 @@ def _parse_row(cells: list[str], columns: dict[int, str]) -> RateRow | None:
             continue
 
         if alan == "term_months":
-            # "3" veya "36 Ay" — ikisi de çözülür.
-            vade = parse_term_months(ham)
-            if vade is None and ham.strip().isdigit():
-                vade = int(ham.strip())
-            degerler[alan] = vade
+            degerler[alan] = _term_months(ham)
         else:
             # ⚠️ Türkçe ondalık ayracı: "%4,20" -> 4.20
             degerler[alan] = parse_rate(ham)
