@@ -20,6 +20,7 @@ from typing import Final
 from bs4 import BeautifulSoup, NavigableString, Tag, XMLParsedAsHTMLWarning
 
 from app.core.normalization.text import (
+    ascii_fold_tr,
     collapse_whitespace,
     lower_tr,
     normalize_text,
@@ -125,6 +126,14 @@ _SECTION_HEADING_RE: Final[re.Pattern[str]] = re.compile(
     re.IGNORECASE,
 )
 
+# Bölüm başlığı sayılan ama içeriği kendi kardeşlerinde DURMAYAN satır içi
+# etiketler. Bunlar için blok atasına çıkılır (bkz. `_section_anchor`).
+_INLINE_HEADING_TAGS: Final[frozenset[str]] = frozenset({"strong", "b", "dt", "span", "em"})
+
+# Blok atası ararken çıkılacak en fazla katman. Sınırsız tırmanma bölümü tüm
+# sayfa gövdesine genişletir ve koşul metnini boilerplate'e boğar.
+_ANCHOR_CLIMB_LIMIT: Final[int] = 3
+
 
 def _make_soup(html: str) -> BeautifulSoup:
     """HTML'i ayrıştırır; lxml yoksa yerleşik ayrıştırıcıya düşer.
@@ -183,7 +192,7 @@ def _usable_heading(text: str) -> bool:
     return not _SECTION_HEADING_RE.search(text)
 
 
-def extract_title(html: str | None) -> str | None:
+def extract_title(html: str | None, *, ignore_headings: Sequence[str] = ()) -> str | None:
     """Sayfa başlığını döndürür.
 
     Sıra: `<h1>` → `<h2>` → `og:title` → `<title>`.
@@ -195,8 +204,16 @@ def extract_title(html: str | None) -> str | None:
     Yalnızca `<h1>`/`<title>` zincirine güvenilirse 65 kampanyanın hepsi aynı
     başlıkla kaydedilir. Gerçek kampanya adı `<h2>` içindedir.
 
+    ⚠️ `ignore_headings` — MARKA BAŞLIĞI TUZAĞI. Bazı sitelerde sayfanın
+    tepesinde logo metni de `<h1>` olarak işaretlenmiş oluyor ve gerçek
+    kampanya adı İKİNCİ `<h1>`'de kalıyor. Ziraat Katılım'da ölçüldü:
+    209 kampanyanın 209'u da "Ziraat Katılım Bankası" başlığıyla kaydedilmişti.
+    Marka metni burada bildirilirse o başlık atlanır ve zincir devam eder.
+
     Args:
         html: Ham HTML.
+        ignore_headings: Başlık sayılmayacak metinler (büyük/küçük harf ve
+            Türkçe karakter farkı gözetilmez).
 
     Returns:
         Normalize edilmiş başlık veya bulunamazsa None.
@@ -205,12 +222,16 @@ def extract_title(html: str | None) -> str | None:
         return None
 
     soup = _make_soup(html)
+    yok_sayilan = {ascii_fold_tr(lower_tr(metin)) for metin in ignore_headings}
 
     for tag_name in ("h1", "h2"):
         for heading in soup.find_all(tag_name):
             text = normalize_text(heading.get_text(separator=" "))
-            if text and _usable_heading(text):
-                return text
+            if not text or not _usable_heading(text):
+                continue
+            if ascii_fold_tr(lower_tr(text)) in yok_sayilan:
+                continue
+            return text
 
     meta = soup.find("meta", attrs={"property": "og:title"})
     if isinstance(meta, Tag):
@@ -378,7 +399,7 @@ def extract_section_text(html: str | None, keywords: Sequence[str]) -> str | Non
             continue
 
         collected: list[str] = []
-        for sibling in heading.find_next_siblings():
+        for sibling in _section_anchor(heading).find_next_siblings():
             if not isinstance(sibling, Tag):
                 continue
             # Sonraki başlıkta bölüm biter.
@@ -392,6 +413,45 @@ def extract_section_text(html: str | None, keywords: Sequence[str]) -> str | Non
             return text
 
     return None
+
+
+def _section_anchor(heading: Tag) -> Tag:
+    """Bölüm içeriğinin kardeşi olduğu düğümü döndürür.
+
+    ⚠️ SATIR İÇİ BAŞLIK TUZAĞI — canlı veride ölçüldü.
+
+    Bankaların çoğu bölüm başlığını `<h2>` yerine bir paragrafın içine
+    koyuyor:
+
+        <p><strong>Kampanya Koşulları:</strong></p>
+        <ul> ... 15 madde ... </ul>
+
+    Burada maddeler `<p>`'nin kardeşidir, `<strong>`'un DEĞİL. `<strong>`
+    üzerinden kardeş aramak boş liste döndürür ve koşullar sessizce kaybolur —
+    ölçüldü: Ziraat'te 209 kampanyanın 209'unda, Emlak'ta 66'nın 66'sında
+    `conditions_text` boş kalmıştı.
+
+    Bu yüzden satır içi bir başlık kardeşsizse, kardeşi olan en yakın blok
+    atasına çıkılır.
+
+    Args:
+        heading: Anahtar kelimeyle eşleşen başlık düğümü.
+
+    Returns:
+        Kardeşleri toplanacak düğüm.
+    """
+    if heading.name not in _INLINE_HEADING_TAGS:
+        return heading
+
+    node: Tag = heading
+    for _ in range(_ANCHOR_CLIMB_LIMIT):
+        if any(isinstance(s, Tag) for s in node.find_next_siblings()):
+            return node
+        parent = node.parent
+        if not isinstance(parent, Tag) or parent.name in ("body", "html", "[document]"):
+            break
+        node = parent
+    return node
 
 
 def clean_html(html: str | None, *, remove_boilerplate: bool = True) -> str:

@@ -43,6 +43,12 @@ SOFT_404_BODY_PATTERNS: Final[tuple[re.Pattern[str], ...]] = tuple(
 # rastgele geçen "bulunamadı" ifadesi yanlış pozitif üretmesin.
 _BODY_SCAN_LIMIT: Final[int] = 2000
 
+# `<title>` etiketinin ham metnini yakalar. Ayrıştırıcı kurmadan okunur:
+# bu denetim her yanıt için çalışıyor ve ucuz olmalı.
+_TITLE_TAG_RE: Final[re.Pattern[str]] = re.compile(
+    r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL
+)
+
 
 def content_fingerprint(html: str | None) -> str:
     """Sayfanın temizlenmiş içeriğinin özetini döndürür.
@@ -60,6 +66,17 @@ def content_fingerprint(html: str | None) -> str:
     if not text:
         return ""
     return sha256_text(text)
+
+
+def _raw_title(html: str) -> str | None:
+    """`<title>` etiketinin ham metnini döndürür.
+
+    `extract_title()` başlık zincirini uygularken `<title>`'a en son bakar ve
+    çoğu sayfada oraya hiç ulaşmaz. Sunucunun "bu sayfa yok" bilgisini
+    yalnızca `<title>` içinde verdiği durumlarda bu ayrım belirleyicidir.
+    """
+    eslesme = _TITLE_TAG_RE.search(html)
+    return eslesme.group(1) if eslesme else None
 
 
 def is_soft_404(
@@ -83,9 +100,21 @@ def is_soft_404(
     if not html or not html.strip():
         return True
 
-    title = lower_tr(extract_title(html) or "")
-    if any(pattern.search(title) for pattern in SOFT_404_TITLE_PATTERNS):
-        return True
+    # ⚠️ İKİ BAŞLIK KAYNAĞI DA DENETLENİR.
+    #
+    # `extract_title()` sayfanın GÖRÜNEN başlığını verir ve bazı sitelerde bu
+    # başlık logo metnidir: Ziraat Katılım'ın 404 sayfasında ilk `<h1>`
+    # "Ziraat Katılım Bankası" olduğu için hata ifadesi görünmüyor ve sayfa
+    # geçerli sanılıyordu — ölçüldü, 2 çöp kayıt bu yolla oluştu.
+    #
+    # `<title>` etiketi ise sunucunun ne döndürdüğünü doğrudan söylüyor
+    # ("Sayfa bulunamadı | Ziraat Katılım"). İki kaynağa da bakmak yalnızca
+    # tespit gücünü artırır; geçerli bir kampanya başlığında bu desenler
+    # bulunmaz.
+    for aday in (extract_title(html), _raw_title(html)):
+        metin = lower_tr(aday or "")
+        if metin and any(pattern.search(metin) for pattern in SOFT_404_TITLE_PATTERNS):
+            return True
 
     body = lower_tr(clean_html(html))[:_BODY_SCAN_LIMIT]
     if any(pattern.search(body) for pattern in SOFT_404_BODY_PATTERNS):
