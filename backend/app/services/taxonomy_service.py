@@ -18,10 +18,10 @@ from dataclasses import dataclass, field
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.core.taxonomy import FALLBACK_SECTOR
 from app.db.models import Bank, Campaign, CampaignCategory
 from app.logging_config import get_logger
 from app.processing.categorizer import categorize
-from app.core.taxonomy import FALLBACK_SECTOR
 
 logger = get_logger(__name__)
 
@@ -58,9 +58,7 @@ def categorize_campaigns(session: Session, *, bank_code: str | None = None) -> T
     """
     statement = select(Campaign)
     if bank_code:
-        statement = statement.join(Bank, Campaign.bank_id == Bank.id).where(
-            Bank.code == bank_code
-        )
+        statement = statement.join(Bank, Campaign.bank_id == Bank.id).where(Bank.code == bank_code)
 
     sonuc = TaxonomyResult()
 
@@ -74,9 +72,7 @@ def categorize_campaigns(session: Session, *, bank_code: str | None = None) -> T
         )
 
         # ⚠️ Önce sil: sözlükten çıkan bir kelimenin etiketi kalmasın.
-        session.execute(
-            delete(CampaignCategory).where(CampaignCategory.campaign_id == campaign.id)
-        )
+        session.execute(delete(CampaignCategory).where(CampaignCategory.campaign_id == campaign.id))
 
         for etiket in etiketler:
             session.add(
@@ -133,8 +129,9 @@ def build_report(sonuc: TaxonomyResult) -> str:
         "",
         f"- Sınıflandırılan kampanya: **{sonuc.campaigns}**",
         f"- Üretilen etiket: **{sonuc.labels}**",
-        f"- Kampanya başına ortalama etiket: "
-        f"**{sonuc.labels / sonuc.campaigns:.1f}**" if sonuc.campaigns else "- —",
+        f"- Kampanya başına ortalama etiket: **{sonuc.labels / sonuc.campaigns:.1f}**"
+        if sonuc.campaigns
+        else "- —",
         f"- Sektörü çıkarılamayan (`genel`): **{sonuc.fallback_only}** "
         f"(%{100 * sonuc.fallback_ratio:.1f})",
         f"- Ürün türü etiketi olmayan: **{sonuc.missing_product_type}**",
