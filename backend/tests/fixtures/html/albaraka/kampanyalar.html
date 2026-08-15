@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+  Albaraka Türk kampanya listesi — sadeleştirilmiş kopya (14 Ağustos 2026).
+
+  Korunan davranışlar:
+    - Detay kalıbı /tr/kampanyalar/detay/{slug}
+    - Slug sonekleri: -1, -10  (farklı dönem, KIRPILMAZ)
+    - /tr/kampanyalar/detay kökü kampanya DEĞİLDİR
+    - robots.txt ile yasaklı ?slug= ve /tr/ticari-ve-kurumsal adresleri
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Kampanyalar | Albaraka</title>
+</head>
+<body>
+  <nav>
+    <a href="/tr/kampanyalar">Kampanyalar</a>
+    <a href="/tr/kampanyalar/detay">Detay</a>
+    <a href="/tr/ticari-ve-kurumsal/uye-isyeri-ve-pos">Üye İşyeri ve POS</a>
+  </nav>
+
+  <main>
+    <h1>Kampanyalar</h1>
+
+    <div class="filtreler">
+      <span>Dijital</span><span>Eflatun</span><span>Bireysel</span>
+      <span>Business</span><span>World</span>
+    </div>
+
+    <div class="kampanya-listesi">
+      <a href="/tr/kampanyalar/detay/agustos-ayina-ozel-fatura-kampanyasi">
+        Ağustos Ayına Özel Fatura Kampanyası
+      </a>
+      <a href="https://www.albaraka.com.tr/tr/kampanyalar/detay/albarakalilara-ozel-ucretsiz-ispark-kampanyasi-1">
+        Albarakalılara Özel Ücretsiz İSPARK Kampanyası
+      </a>
+      <a href="/tr/kampanyalar/detay/dijital-katilma-hesabina-ozel-paylasim-oranlari-10">
+        Dijital Katılma Hesabına Özel Paylaşım Oranları
+      </a>
+
+      <!-- ⚠️ robots.txt yasağı: bu adreslere istek atılmamalı -->
+      <a href="/tr/kampanyalar?slug=gecmis-kampanya-2025">Geçmiş Kampanyalar</a>
+      <a href="/tr/ticari-ve-kurumsal/kampanyalar/detay/kurumsal-kampanya">Kurumsal Kampanya</a>
+    </div>
+  </main>
+</body>
+</html>
