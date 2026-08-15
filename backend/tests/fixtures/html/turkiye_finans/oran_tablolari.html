@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--
+  Türkiye Finans ihtiyaç finansmanı oran tabloları — canlı sayfadan alınan
+  yapı (14 Ağustos 2026). Değerler gerçektir.
+
+  ⚠️ GÖRÜNMEZ KARAKTERLER BİLİNÇLİ OLARAK BIRAKILMIŞTIR:
+     Başlıklarda U+200B (zero-width space) kelimenin İÇİNDE geçiyor
+     (`&#8203;Va&#8203;de`) ve U+00A0 (nbsp) kelimeler arasında.
+     `normalize_text()` uygulanmadan kolon eşleştirmesi sessizce başarısız olur.
+
+  ⚠️ VARYANT BOYUTU TABLONUN DIŞINDA: hangi tablonun sigortalı hangisinin
+     sigortasız olduğu yalnızca üstteki başlıkta yazılı. Başlık okunmazsa iki
+     tablo tek ürüne ait sanılır ve oranlar karışır.
+-->
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>İhtiyaç Finansmanı | Türkiye Finans</title>
+</head>
+<body>
+  <main>
+    <h1>İhtiyaç Finansmanı</h1>
+
+    <p>Sigortalı İhtiyaç Finansmanı (İhtiyaç Kredisi)* Kâr Payı Oranları ve Maliyet Tablosu</p>
+    <table>
+      <tr>
+        <th>&#8203;Va&#8203;de</th>
+        <th>Kâr &#8203;Payı&#160;Oranı</th>
+        <th>Tahsis Ücreti</th>
+        <th>Aylık Toplam Maliyet</th>
+        <th>Yıllık Toplam Maliyet</th>
+      </tr>
+      <tr><td>3</td><td>4,20%</td><td>0,50%</td><td>5,77%</td><td>96,05%</td></tr>
+      <tr><td>12</td><td>4,15%</td><td>0,50%</td><td>5,50%</td><td>90,09%</td></tr>
+      <tr><td>36</td><td>3,80%</td><td>0,50%</td><td>4,98%</td><td>79,27%</td></tr>
+    </table>
+
+    <p>Sigortasız İhtiyaç Finansmanı (İhtiyaç Kredisi)* Kâr Payı Oranları ve Maliyet Tablosu</p>
+    <table>
+      <tr>
+        <th>&#8203;Va&#8203;de</th>
+        <th>Kâr &#8203;Payı&#160;Oranı</th>
+        <th>Tahsis Ücreti</th>
+        <th>Aylık Toplam Maliyet</th>
+        <th>Yıllık Toplam Maliyet</th>
+      </tr>
+      <tr><td>3</td><td>6,10%</td><td>0,50%</td><td>8,25%</td><td>158,90%</td></tr>
+      <tr><td>12</td><td>6,05%</td><td>0,50%</td><td>7,98%</td><td>151,15%</td></tr>
+      <tr><td>36</td><td>5,70%</td><td>0,50%</td><td>7,46%</td><td>137,22%</td></tr>
+    </table>
+
+    <!-- Oran kolonu taşımayan tablo: atlanmalı -->
+    <table>
+      <tr><th>Belge</th><th>Açıklama</th></tr>
+      <tr><td>Nüfus cüzdanı</td><td>Zorunlu</td></tr>
+    </table>
+  </main>
+</body>
+</html>
