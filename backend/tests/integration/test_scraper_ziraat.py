@@ -43,6 +43,8 @@ def fixtures(read_fixture) -> dict[str, str]:  # type: ignore[no-untyped-def]
         "donem": read_fixture("html/ziraat_katilim/kampanya_donem.html"),
         "son_gun": read_fixture("html/ziraat_katilim/kampanya_son_gun.html"),
         "aralik": read_fixture("html/ziraat_katilim/kampanya_aralik.html"),
+        "marka_h1": read_fixture("html/ziraat_katilim/kampanya_marka_h1.html"),
+        "bulunamadi": read_fixture("html/ziraat_katilim/sayfa_bulunamadi.html"),
     }
 
 

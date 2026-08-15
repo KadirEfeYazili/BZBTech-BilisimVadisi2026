@@ -81,6 +81,27 @@ PRODUCT_LISTING: Final[str] = f"{BASE_URL}/bireysel/finansman-urunleri"
 CARD_LINK_CLASS: Final[str] = "item-title"
 CARD_CATEGORY_CLASS: Final[str] = "item-category"
 
+# ⚠️ MARKA BAŞLIĞI TUZAĞI — canlı çekimde ölçüldü.
+#
+# Detay sayfalarında İKİ `<h1>` var:
+#     <h1>Ziraat Katılım Bankası</h1>      <- logo metni, her sayfada aynı
+#     <h1>Sosyopix'te %20 İndirim</h1>     <- gerçek kampanya adı
+#
+# Başlık zinciri ilk `<h1>`'i aldığı için 209 kampanyanın 209'u da
+# "Ziraat Katılım Bankası" adıyla kaydedilmişti. Aynı nedenle 2 "sayfa yok"
+# yanıtı da geçerli kampanya sanılmıştı: hata ifadesi ikinci `<h1>`'de kalıyor.
+#
+# Emlak Katılım'dan farkı: orada `og:title` TÜM kampanyalarda aynıydı ve
+# işe yaramıyordu; Ziraat'te kampanyaya özgü ve doğru. Bu yüzden marka
+# `<h1>`'i elendiğinde zincir doğru başlığa ulaşıyor.
+#
+# Bu sabit kaldırılırsa hata sessizce geri döner; regresyon testi:
+# `tests/unit/test_marka_basligi_regresyonu.py`.
+BRAND_HEADINGS: Final[tuple[str, ...]] = (
+    "Ziraat Katılım Bankası",
+    "Ziraat Katılım",
+)
+
 CONDITION_KEYWORDS: Final[tuple[str, ...]] = (
     "kampanya koşul",
     "koşullar",
@@ -220,7 +241,8 @@ class ZiraatKatilimScraper(BaseScraper):
         Returns:
             Çıkarılan kampanya; başlık bulunamazsa None.
         """
-        title = extract_title(html)
+        # ⚠️ Marka `<h1>`'i atlanır; gerekçe `BRAND_HEADINGS` açıklamasında.
+        title = extract_title(html, ignore_headings=BRAND_HEADINGS)
         if not title:
             return None
 
