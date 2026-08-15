@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  T.O.M. Bank (tombankhadi.com) sitemap'inin SADELEŞTİRİLMİŞ kopyası
+  (14 Ağustos 2026).
+
+  ⚠️ EN KRİTİK DAVRANIŞ: aynı kampanya İKİ ayrı yol ön ekiyle yayımlanıyor.
+     Canlı ölçümde 76 slug'ın 76'sı da ikinci ön ekte tekrar ediyordu.
+     Yol bazında sayılırsa kayıt sayısı ikiye katlanır; tekilleştirme SLUG
+     üzerinden yapılmalı ve kanonik ön ek `/kampanyalar/` tercih edilmeli.
+
+  Ayrıca `/hadi-kredi-karti-ayricaliklari/{slug}` sayfaları yalnızca
+  sitemap'ten bulunuyor; kök sayfasına bağlantı yok.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://tombankhadi.com/</loc></url>
+  <url><loc>https://tombankhadi.com/hadi-kazan/kampanyalar</loc></url>
+  <url><loc>https://tombankhadi.com/kampanyalar</loc></url>
+
+  <!-- Kanonik ön ek -->
+  <url>
+    <loc>https://tombankhadi.com/kampanyalar/vergi-kampanyasi</loc>
+    <lastmod>2026-08-01</lastmod>
+  </url>
+  <url><loc>https://tombankhadi.com/kampanyalar/a101lerde-sut-urunleri-harcamalarinda-50-hediye-bakiye-kazan</loc></url>
+
+  <!-- ⚠️ AYNI iki kampanya, ikinci ön ekle tekrar -->
+  <url><loc>https://tombankhadi.com/cok-kazananlar-kulubu-kampanya/vergi-kampanyasi</loc></url>
+  <url><loc>https://tombankhadi.com/cok-kazananlar-kulubu-kampanya/a101lerde-sut-urunleri-harcamalarinda-50-hediye-bakiye-kazan</loc></url>
+
+  <!-- Yalnızca sitemap'ten bulunabilen ayrıcalık sayfası -->
+  <url><loc>https://tombankhadi.com/hadi-kredi-karti-ayricaliklari/restoran-ayricaliklari</loc></url>
+
+  <!-- Kampanya olmayanlar -->
+  <url><loc>https://tombankhadi.com/sozlesme-ve-formlar/kiymetli-maden-hesabi</loc></url>
+  <url><loc>https://tombankhadi.com/hadi-indir</loc></url>
+  <url><loc>https://www.hadiyanindakibanka.com/kampanyalar/ayna-kampanya</loc></url>
+</urlset>
