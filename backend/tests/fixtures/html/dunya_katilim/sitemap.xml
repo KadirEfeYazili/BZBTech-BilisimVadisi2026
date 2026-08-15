@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Dünya Katılım sitemap'inin SADELEŞTİRİLMİŞ kopyası (14 Ağustos 2026).
+
+  Korunan davranışlar:
+    - Adresler `www.` ÖN EKSİZ geliyor -> aynı site denetimi www yok saymalı
+    - camelCase slug (`altin-kesemTicari`) -> küçültülürse HTTP 404
+    - İngilizce sürüm (/en/campaigns/...) alınmamalı
+    - `/kampanyalar` kökü kampanya değildir
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://dunyakatilim.com.tr/</loc></url>
+  <url><loc>https://dunyakatilim.com.tr/kampanyalar</loc></url>
+  <url>
+    <loc>https://dunyakatilim.com.tr/kampanyalar/altin-kesemTicari</loc>
+    <lastmod>2026-08-01</lastmod>
+  </url>
+  <url><loc>https://dunyakatilim.com.tr/kampanyalar/a-101-paraf</loc></url>
+  <url><loc>https://dunyakatilim.com.tr/kampanyalar/avantajli-kurlar</loc></url>
+  <url><loc>https://dunyakatilim.com.tr/en/campaigns/ramazan-troy-kampanyasi</loc></url>
+  <url><loc>https://dunyakatilim.com.tr/kendim-icin/finansmanlar</loc></url>
+  <url><loc>https://baska-site.com/kampanyalar/dis-baglanti</loc></url>
+</urlset>
