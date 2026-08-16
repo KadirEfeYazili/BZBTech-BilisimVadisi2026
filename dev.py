@@ -88,7 +88,7 @@ def kur() -> int:
     İNDİRİLMEZ: ~400 MB'lık indirme kapalı ağ (on-premise) kurulumunu
     zorlaştırır ve yalnızca keşif adımlarında gereklidir.
     """
-    if _venv_python_yolu() is None:
+    if not VENV_PYTHON.is_file():
         print("Sanal ortam oluşturuluyor...")
         kod = _calistir([sys.executable, "-m", "venv", str(VENV)])
         if kod != 0:
@@ -235,6 +235,17 @@ def kesif_hesaplayici() -> int:
     )
 
 
+def geri_doldur() -> int:
+    """Bankanın kendi kategori etiketini arşivlenmiş HTML'den geri doldurur.
+
+    AĞA ÇIKMAZ. `bank_category` sütunu sonradan eklendiği için ondan önce
+    çekilmiş kayıtlarda boş; arşivdeki liste sayfaları o etiketi taşıyor.
+    """
+    return _calistir(
+        [_python(), "-m", "scripts.backfill_bank_category", *_ek_argumanlar()], cwd=BACKEND
+    )
+
+
 def siniflandir() -> int:
     """Kampanyaları dört eksende sınıflandırır ve raporu üretir.
 
@@ -317,6 +328,7 @@ GOREVLER: dict[str, tuple[Callable[[], int], str]] = {
     "web": (web, "Arayüzü başlatır (http://localhost:5173)"),
     "scrape": (scrape, "Tüm scraper'ları çalıştırır"),
     "scrape-deneme": (scrape_deneme, "Kazımayı veritabanına yazmadan dener"),
+    "geri-doldur": (geri_doldur, "Banka kategorisini arşivden geri doldurur (ağa çıkmaz)"),
     "siniflandir": (siniflandir, "Kampanyaları dört eksende sınıflandırır (ağa çıkmaz)"),
     "kesif-endpoint": (kesif_endpoint, "Kampanya listesi JSON uçlarını arar (Playwright)"),
     "kesif-hesaplayici": (
