@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react";
 
+import { CategoryBadges } from "@/components/campaigns/CategoryBadges";
 import { StatusBadge } from "@/components/campaigns/StatusBadge";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,8 @@ interface CampaignTableProps {
 const COLUMNS: { key: SortField | null; label: string; className?: string }[] = [
   { key: "bank", label: "Banka", className: "w-40" },
   { key: "title", label: "Başlık" },
-  { key: null, label: "Kategori", className: "w-32" },
+  { key: null, label: "Sektör", className: "w-44" },
+  { key: null, label: "Ürün Türü", className: "w-40" },
   { key: null, label: "Segment", className: "w-28" },
   { key: "start_date", label: "Başlangıç", className: "w-28 text-right" },
   { key: "end_date", label: "Bitiş", className: "w-28 text-right" },
@@ -91,9 +93,13 @@ export function CampaignTable({
 
               <TableCell className="font-medium text-text-900">{campaign.title}</TableCell>
 
+              {/* Taksonomi backend'de üretilir; arayüz yalnızca gösterir. */}
               <TableCell className="text-text-500">
-                {/* PART 1'de kategori daima null; PART 3'te sınıflandırılacak. */}
-                {formatText(campaign.category, "Sınıflandırılmadı")}
+                <CategoryBadges categories={campaign.categories} axis="sector" max={2} />
+              </TableCell>
+
+              <TableCell className="text-text-500">
+                <CategoryBadges categories={campaign.categories} axis="product_type" max={2} />
               </TableCell>
 
               <TableCell className="text-text-500">{formatText(campaign.segment)}</TableCell>

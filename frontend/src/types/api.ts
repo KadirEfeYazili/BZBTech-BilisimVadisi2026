@@ -33,6 +33,33 @@ export interface BankDetail extends Bank {
   legacy_domains: string[] | null;
 }
 
+/** Taksonominin dört dik ekseni. */
+export type TaxonomyAxis = "product_type" | "sector" | "audience" | "benefit";
+
+/** Etiketin hangi kanıttan çıkarıldığı. */
+export type CategorySource =
+  | "url"
+  | "bank_category"
+  | "merchant"
+  | "keyword"
+  | "llm";
+
+/**
+ * Kampanyanın tek bir eksendeki tek bir etiketi.
+ *
+ * Her etiket KANITIYLA gelir: `source` hangi kaynaktan çıkarıldığını,
+ * `evidence` hangi metne dayandığını söyler. Arayüz bunları gösterir ama
+ * yeniden hesaplamaz — sınıflandırma backend'de yapılır.
+ */
+export interface CampaignCategory {
+  axis: TaxonomyAxis;
+  value: string;
+  /** 0-1 arası. 1.00 bankanın kendi verisi, 0.30 çıkarılamadı demektir. */
+  confidence: string;
+  source: CategorySource;
+  evidence: string | null;
+}
+
 export interface CampaignListItem {
   id: number;
   bank_code: string;
@@ -40,6 +67,10 @@ export interface CampaignListItem {
   external_slug: string;
   title: string;
   category: string | null;
+  /** Bankanın KENDİ kategori etiketi, ham hâliyle. */
+  bank_category: string | null;
+  /** Dört eksenli taksonomi etiketleri. */
+  categories: CampaignCategory[];
   segment: string | null;
   target_customer: string | null;
   /** Bilinmiyorsa null — tarih uydurulmaz. */
